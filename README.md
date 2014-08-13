@@ -1,4 +1,4 @@
-# mqtt-lens
+# mqtt-lens element
 
 ## install
 
