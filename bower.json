@@ -1,0 +1,37 @@
+{
+    "name": "mqtt-lens",
+    "version": "0.0.1",
+    "authors": [
+        "Sandro Kock <sandro.kock@gmail.com>"
+    ],
+    "description": "A polymer element that loads the MQTTLensApp",
+    "main": [
+        "mqtt-lens.html"
+    ],
+    "keywords": [
+        "mqtt",
+        "polymer",
+        "web-components",
+        "custom-elements",
+        "polymer-elements"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/sandro-k/mqtt-lens",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "css/*.scss",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "polymer": "~0.3.3",
+        "moment": "~2.7.0",
+        "core-elements": "Polymer/core-elements#~0.3.3",
+        "mqtt-connection": "sandro-k/mqtt-connection#master",
+        "mqtt-subscription-ui": "sandro-k/mqtt-subscription-ui#master",
+        "mqtt-message-ui": "sandro-k/mqtt-message-ui",
+        "mqtt-connection-ui": "sandro-k/mqtt-connection-ui"
+    }
+}
