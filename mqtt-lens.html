@@ -37,16 +37,16 @@
       <style>
         :host /deep/ .{{connection.connectionID}}.zero.bg  {
 
-          background: {{connection.connectionColors[0]}}!important;
+        background: {{connection.connectionColors[0]}}!important;
         }
 
         :host /deep/ .{{connection.connectionID}}.zero.border  {
-          border-left: 3px solid {{connection.connectionColors[0]}}!important;
-          border-right: 1px solid {{connection.connectionColors[0]}}!important;
+        border-left: 3px solid {{connection.connectionColors[0]}}!important;
+        border-right: 1px solid {{connection.connectionColors[0]}}!important;
         }
 
         :host /deep/ .{{connection.connectionID}} .badge  {
-          background: {{connection.connectionColors[0]}}!important;
+        background: {{connection.connectionColors[0]}}!important;
 
         }
 
@@ -110,44 +110,8 @@
         paper-toast {
           z-index: 1001!important;
         }
-
-
       </style>
-
-      <!--<div class="{{connection.connectionID}} zero bg">-->
-        <!--zero-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} one bg">-->
-        <!--one-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} two bg">-->
-        <!--two-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} three bg">-->
-        <!--three-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} four bg">-->
-        <!--four-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} five bg">-->
-        <!--five-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} six bg">-->
-        <!--six-->
-      <!--</div>-->
-      <!--<div class="{{connection.connectionID}} seven bg">-->
-        <!--seven-->
-      <!--</div>-->
     </template>
-
-
-
-    <!--/*todo remove this when done  */-->
-    <!--<link rel="stylesheet" href="css/debug.css"/>-->
-
-
-
-
     <link rel="stylesheet" href="../../css/build/layout.css"/>
     <link rel="stylesheet" href="css/main.css"/>
 
@@ -197,19 +161,13 @@
              <core-tooltip show?="{{mqttConnections.length == 0}}">
                <style>
                  :host /deep/ .polymer-tooltip {
-                   /*white-space: normal!important;*/
-                   /*line-height: 10px;*/
                    z-index: 11;
-                   /*background-color: rgba(144,238,144, 0.8);*/
-                   /*border: 1px solid lightgreen;*/
-                   /*color: #000000;*/
-                   /*top: 18px;*/
                  }
-
                </style>
                <template if="{{mqttConnections.length == 0}}">
                  <strong tip>First add a connection</strong>
                </template>
+
               <template if="{{mqttConnections.length > 0}}">
                <strong tip>Add a connection</strong>
               </template>
@@ -247,19 +205,17 @@
           </div>
       </div>
 
-
-
-
-
       <!--menu end-->
       <!--content-->
-      <div id="content" style="min-width: 200px" flex>
+      <div id="content" class="min-200" flex>
         <div class="header left" layout horizontal center>
           <div class="menu-buttons left">
             <changeover-icon icon="chevron-left" down="chevron-right" up="chevron-left" on-click="{{menuCollapse}}" status="false"></changeover-icon>
           </div>
           <div flex>
-            <h1>Environment Name</h1>
+            <!--<h1>Environment Name</h1>-->
+            <!--<h1>Connections</h1>-->
+            <h1>&nbsp;</h1>
           </div>
           <div class="menu-buttons right">
           </div>
@@ -272,9 +228,6 @@
               <div flex>
                 <h2>Connection: {{connection.connectionName}}</h2>
               </div>
-              <!--<div class="menu-buttons right">-->
-                  <!--<core-icon icon="add" on-click="{{addSubscription}}"></core-icon>-->
-              <!--</div>-->
             </div>
           </div>
 
@@ -291,7 +244,7 @@
                   icon="expand-more"
                   down="expand-less"
                   up="expand-more"
-                  on-click="{{toogleSubscribe}}"></changeover-icon>
+                  on-click="{{toggleSubscribe}}"></changeover-icon>
 
             </div>
           </div>
@@ -334,7 +287,7 @@
                     icon="expand-more"
                     down="expand-less"
                     up="expand-more"
-                    on-click="{{tooglePublish}}"></changeover-icon>
+                    on-click="{{togglePublish}}"></changeover-icon>
 
               </div>
             </div>
@@ -460,10 +413,10 @@
       loadDummy: function () {
         var values = {
           "connectionID":"lensasasasasa",
-          "connectionName":"broker.mqttdashboard.com",
+          "connectionName":"localhost",
           "connectionColor":this.defaultConnectionColors[0],
-          "hostname":"ws://broker.mqttdashboard.com",
-          "hostPort":8000,
+          "hostname":"ws://localhost",
+          "hostPort":665,
           "clientID":"connectionID",
           "cleanSession":true,
           "useSSL":false,
@@ -485,10 +438,10 @@
         var self = this;
         var values = {
           "ID":"",
-//          "connectionName":"broker.mqttdashboard.com",
+          "connectionName":"localhost",
           "connectionColor":this.defaultConnectionColors[this.colorCounter],
-//          "hostname":"broker.mqttdashboard.com",
-          "hostPort":1883,
+          "hostname":"localhost",
+          "hostPort":665,
 //          "clientID":"7ILDuLmcWUyTiLJvDhvMg7XZxyPh0PaM",
           "cleanSession":true,
           "useSSL":false,
@@ -608,7 +561,6 @@
         // add listener for save
         newConnectionUI.addEventListener("newMqttConnection", function(e) {
           connection.updateConnection(e.detail);
-          //self.createConnection(e.detail);
         });
 
         this.shadowRoot.appendChild(newConnectionUI);
@@ -618,12 +570,12 @@
 
       },
 
-      toogleSubscribe: function (inEvent, inDetail ,inSender) {
+      toggleSubscribe: function (inEvent, inDetail ,inSender) {
         // todo(sandro-k) unclean hack please fix
         inSender.templateInstance.firstNode.parentNode.querySelector("#subscriptionCollapse"+ inSender.getAttribute("target")).toggle();
       },
 
-      tooglePublish: function (inEvent, inDetail ,inSender) {
+      togglePublish: function (inEvent, inDetail ,inSender) {
         // todo(sandro-k) unclean hack please fix
         inSender.templateInstance.firstNode.parentNode.querySelector("#publishCollapse" + inSender.getAttribute("target")).toggle();
       },
@@ -665,14 +617,13 @@
       /**
        * FILTER EXPRESSIONS
        */
-
       connectedFilter: function(connected){
         if(connected) {
           return "connected";
         } else {
           return "disconnected";
         }
-      },
+      }
 
 
 
