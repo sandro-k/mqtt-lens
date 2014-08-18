@@ -33,6 +33,7 @@
         "mqtt-subscription-ui": "sandro-k/mqtt-subscription-ui#master",
         "mqtt-message-ui": "sandro-k/mqtt-message-ui",
         "mqtt-connection-ui": "sandro-k/mqtt-connection-ui",
-        "changeover-icon": "sandro-k/changeover-icon"
+        "changeover-icon": "sandro-k/changeover-icon",
+        "mqtt-lens-style": "sandro-k/mqtt-lens-style"
     }
 }
