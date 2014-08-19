@@ -253,7 +253,10 @@
               <div class="min-200 ml" flex five>
                 <div layout vertical>
                   <strong class="form-header">Topic</strong>
-                  <input class="form-control space-left topicInput" value="{{subscriptionTopic}}" flex>
+                  <input class="form-control space-left topicInput"
+                         value="{{subscriptionTopic}}"
+                         placeholder="eg. public/me/+"
+                         flex>
                 </div>
               </div>
               <div class="min-200 mlr" flex two>
@@ -296,7 +299,10 @@
                 <div class="min-200 ml" flex five>
                   <div layout vertical>
                     <strong class="form-header">Topic</strong>
-                    <input class="form-control space-left topicInput" value="{{publishTopic}}" flex>
+                    <input class="form-control space-left topicInput"
+                           value="{{publishTopic}}"
+                           placeholder="eg. public/me/+"
+                           flex>
                   </div>
                 </div>
                 <div class="min-200 mlr" flex two>
@@ -319,7 +325,9 @@
                 <div flex>
                   <div class="mr" layout vertical>
                     <strong class="form-header">Message</strong>
-                    <textarea class="form-control mlr" rows="3" flex value="{{publishValue}}"></textarea>
+                    <textarea class="form-control mlr"
+                              placeholder="either plain text or JSON"
+                              rows="3" flex value="{{publishValue}}"></textarea>
                   </div>
                 </div>
               </div>
