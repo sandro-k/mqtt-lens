@@ -241,14 +241,14 @@
             <div class="menu-buttons right">
               <changeover-icon
                   target="{{connection.connectionID}}"
-                  icon="expand-more"
-                  down="expand-less"
-                  up="expand-more"
+                  icon="expand-less"
+                  down="expand-more"
+                  up="expand-less"
                   on-click="{{toggleSubscribe}}"></changeover-icon>
 
             </div>
           </div>
-          <core-collapse id="subscriptionCollapse{{connection.connectionID}}">
+          <core-collapse id="subscriptionCollapse{{connection.connectionID}}" opened>
             <div class="{{connection.connectionID}} zero border space" layout horizontal end wrap>
               <div class="min-200 ml" flex five>
                 <div layout vertical>
@@ -284,14 +284,14 @@
               <div class="menu-buttons right">
                 <changeover-icon
                     target="{{connection.connectionID}}"
-                    icon="expand-more"
-                    down="expand-less"
-                    up="expand-more"
+                    icon="expand-less"
+                    down="expand-more"
+                    up="expand-less"
                     on-click="{{togglePublish}}"></changeover-icon>
 
               </div>
             </div>
-            <core-collapse id="publishCollapse{{connection.connectionID}}">
+            <core-collapse id="publishCollapse{{connection.connectionID}}" opened>
               <div class="{{connection.connectionID}} zero border space" layout horizontal end wrap>
                 <div class="min-200 ml" flex five>
                   <div layout vertical>
@@ -365,7 +365,7 @@
         appSubname: "lens",
         breadcrump: "Subscriptions",
         publishTopicQoS: 0,
-        subscriptionTopicQoS: 0,
+        subscriptionTopicQoS: 0
       },
 
       mqttConnections: [],
@@ -375,12 +375,10 @@
 
 
       created: function () {
-        console.log("created");
-
-        this.subscriptionTopic = 'test';
+        this.subscriptionTopic = '';
         this.publishTopicQoS = 0;
-        this.publishTopic = 'test';
-        this.publishValue = '{"id":"387","name":"greenhouse","description":"The sensorbox of the greenhouse on my terrace","datastreams":[{"id":"9347","name":"temperature","description":"Temperature"},{"id":"9348","name":"Humidity","description":"Humidity"}]}';
+        this.publishTopic = '';
+        this.publishValue = '';
 
       },
       ready: function () {
@@ -388,15 +386,12 @@
         this.toast = this.$.toast;
       },
       attached: function () {
-        console.log("attached");
       },
       domReady: function () {
-        console.log("domReady");
 //        this.loadDummy();
 
       },
       detached: function () {
-        console.log("detached");
       },
 
       // functions
