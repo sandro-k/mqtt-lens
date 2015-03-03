@@ -2,3 +2,5 @@
 .DS_Store
 .idea
 bower_components
+npm-debug.log
+.bowerrc
