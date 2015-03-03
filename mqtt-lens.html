@@ -15,6 +15,7 @@
 <link rel="import" href="../changeover-icon/changeover-icon.html">
 
 <link rel="import" href="../mqtt-connection-ui/mqtt-connection-ui.html">
+<link rel="import" href="../core-localstorage/core-localstorage.html">
 
 
 
@@ -32,6 +33,8 @@
       }
 
     </style>
+
+    <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
 
     <template repeat="{{ connection in mqttConnections }}">
       <style>
@@ -51,15 +54,12 @@
         }
 
 
-
-
         :host /deep/ .message-{{connection.connectionID}}.row.message  {
         border-top: 2px solid {{connection.connectionColors[9]}}!important;
         border-left: 3px solid {{connection.connectionColors[0]}}!important;
         border-bottom: 2px solid {{connection.connectionColors[9]}}!important;
         -webkit-animation: okAnimationa 5s;
         }
-
 
 
         :host /deep/ .{{connection.connectionID}}.one.bg   {
@@ -113,11 +113,11 @@
     <link rel="stylesheet" href="css/main.css"/>
 
     <!--git hub-->
-    <a href="https://github.com/sandro-k/mqtt-chrome">
-      <img class="github rot-90"
-           src="../../bower_components/mqtt-lens/assets/github.png"
-           alt="Fork me on GitHub">
-    </a>
+    <!--<a href="https://github.com/sandro-k/mqtt-chrome">-->
+      <!--<img class="github rot-90"-->
+           <!--src="../mqtt-lens/assets/github.png"-->
+           <!--alt="Fork me on GitHub">-->
+    <!--</a>-->
 
 
     <!--header-->
@@ -131,12 +131,11 @@
               <h1 class="app-name"><core-icon icon="search" class="big rot-75"></core-icon> {{appName}}<span>{{appSubname}}</span></h1>
             </div>
 
-            <div class="col-xs-4 col-sm-2">
+            <!--<div class="col-xs-4 col-sm-2">-->
               <!--<h1 on-click="{{config}}" class="config-icon pull-right config extra-margin">-->
                 <!--<span class="glyphicon glyphicon-cog"></span>-->
               <!--</h1>-->
-
-            </div>
+            <!--</div>-->
 
           </div>
         </div>
@@ -210,8 +209,6 @@
             <changeover-icon icon="chevron-left" down="chevron-right" up="chevron-left" on-click="{{menuCollapse}}" status="false"></changeover-icon>
           </div>
           <div flex>
-            <!--<h1>Environment Name</h1>-->
-            <!--<h1>Connections</h1>-->
             <h1>&nbsp;</h1>
           </div>
           <div class="menu-buttons right">
@@ -227,8 +224,6 @@
               </div>
             </div>
           </div>
-
-
 
         <div class="subheader {{connection.connectionID}} nine bg">
           <div class="{{connection.connectionID}} zero border" layout horizontal center>
@@ -274,7 +269,6 @@
             </div>
           </core-collapse>
         </div>
-
 
         <div class="subheader {{connection.connectionID}} nine bg">
           <div class="{{connection.connectionID}} zero border" layout horizontal center>
@@ -349,20 +343,14 @@
     </div>
     </div>
 
-
     <paper-toast duration="4000" id="toast" status="{{toaststatus}}"></paper-toast>
     <content>
-
     </content>
 
   </template>
 
-
   <script>
     Polymer('mqtt-lens', {
-
-
-
 
       publish: {
         leftMenu: true,
@@ -378,7 +366,6 @@
       defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb' , '#cc2255'],
       colorCounter: 1,
 
-
       created: function () {
         this.subscriptionTopic = '';
         this.publishTopicQoS = 0;
@@ -386,28 +373,34 @@
         this.publishValue = '';
 
       },
+
       ready: function () {
-        console.log("ready");
         this.toast = this.$.toast;
+        this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
       },
+
       attached: function () {
       },
-      domReady: function () {
-//        this.loadDummy();
 
+      domReady: function () {
       },
+
       detached: function () {
       },
 
       // functions
       leftMenuToggle: function () {
-        console.log("leftMenuToggle");
         this.leftMenu = !this.leftMenu;
       },
 
+      savedConnectionsLoaded: function (){
+        for (var i = 0; i < this.savedConnections.length; i++) {
+          this.createConnection(this.savedConnections[i], true);
+        }
+      },
 
       config: function () {
-        // TODO(sandro-k) show settings
+
       },
 
       loadDummy: function () {
@@ -429,7 +422,6 @@
           "lastWillQoS":0,
           "lastWillRetained":false,
           "autoConnect":true};
-
 
         this.createConnection(values);
       },
@@ -453,7 +445,6 @@
           this.colorCounter = 0;
         }
 
-
         // create modal
         var newConnectionUI = new MqttConnectionUi();
 
@@ -463,6 +454,7 @@
         // add listener for save
         newConnectionUI.addEventListener("newMqttConnection", function(e) {
           self.createConnection(e.detail);
+
         });
 
         newConnectionUI.addEventListener("cancelNewMqttConnection", function() {
@@ -475,7 +467,11 @@
         newConnectionUI.toggle();
       },
 
-      createConnection: function(conValues) {
+      createConnection: function(conValues, flag) {
+        if (arguments.length === 1){
+          this.savedConnections.push(conValues);
+        }
+
         var self = this;
         var mqttCon = new MqttConnection();
 
@@ -486,6 +482,7 @@
         }
 
         mqttCon.createClient();
+        mqttCon.disconnect();
         this.mqttConnections.push(mqttCon);
 
         mqttCon.addEventListener("toast", function (e, detail, sender) {
@@ -520,12 +517,10 @@
         var options = {
           qos: parseInt(this.subscriptionTopicQoS)
         }
-        console.log(options);
-
 
         // subscribe
         connection.subscribe(this.subscriptionTopic, options , target, function() {
-          console.log("addSubscription callback");
+
         });
 
 
@@ -575,13 +570,9 @@
 
       mqttPublish: function (inEvent, inDetail ,inSender) {
 
-
         var topic = this.publishTopic;
         var qos = parseInt(this.publishTopicQoS)
         var message = this.publishValue;
-
-        console.log("Qos:%s", qos);
-
 
         var options = {
           qos: qos,
@@ -591,20 +582,23 @@
         var self = this;
         var connection = inSender.templateInstance.model.connection;
         connection.mqttPublish(topic, message, options, function() {
-          console.log("Callback");
+
         });
-
-
-
       },
 
       removeConnection: function (inEvent, inDetail ,inSender) {
-        console.log(inSender);
         var connection = inSender.templateInstance.model.connection;
-        console.log(connection);
         connection.end();
 
         this.mqttConnections = _.without(this.mqttConnections, connection);
+        for (var i = 0; i < this.savedConnections.length; i++) {
+          var obj = this.savedConnections[i];
+          if (obj.connectionID === connection.connectionID){
+            this.savedConnections = _.without(this.savedConnections, obj);
+            break;
+          }
+
+        }
       },
 
       /**
