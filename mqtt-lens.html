@@ -7,6 +7,7 @@
 <link rel="import" href="../core-tooltip/core-tooltip.html">
 <link rel="import" href="../core-icon-button/core-icon-button.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../core-input/core-input.html"/>
 
 
 
@@ -247,8 +248,7 @@
                   <strong class="form-header">Topic</strong>
                   <input class="form-control space-left topicInput"
                          value="{{subscriptionTopic}}"
-                         placeholder="eg. public/me/+"
-                         flex>
+                         placeholder="eg. public/me/+">
                 </div>
               </div>
               <div class="min-200 mlr" flex two>
@@ -292,8 +292,7 @@
                     <strong class="form-header">Topic</strong>
                     <input class="form-control space-left topicInput"
                            value="{{publishTopic}}"
-                           placeholder="eg. public/me/+"
-                           flex>
+                           placeholder="eg. public/me/+">
                   </div>
                 </div>
                 <div class="min-200 mlr" flex two>
@@ -318,7 +317,7 @@
                     <strong class="form-header">Message</strong>
                     <textarea class="form-control mlr"
                               placeholder="either plain text or JSON"
-                              rows="3" flex value="{{publishValue}}"></textarea>
+                              rows="3" value="{{publishValue}}"></textarea>
                   </div>
                 </div>
               </div>
@@ -371,6 +370,7 @@
         this.publishTopicQoS = 0;
         this.publishTopic = '';
         this.publishValue = '';
+        this.savedConnections = [];
 
       },
 
@@ -482,7 +482,6 @@
         }
 
         mqttCon.createClient();
-        mqttCon.disconnect();
         this.mqttConnections.push(mqttCon);
 
         mqttCon.addEventListener("toast", function (e, detail, sender) {
