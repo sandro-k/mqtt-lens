@@ -1,0 +1,16 @@
+{
+  "name": "mqtt-len",
+  "version": "0.0.2",
+  "description": "A polymer element that is the MQTTLens App",
+  "main": "mqtt-lens.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sandro Kock <sandro.kock@gmail.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-sass": "^0.8.1",
+    "grunt-contrib-watch": "^0.6.1"
+  }
+}
