@@ -6,9 +6,10 @@
 $ mkdir mqtt-lens-dev
 $ cd mqtt-lens-dev
 $ git clone https://github.com/sandro-k/mqtt-lens.git
+$ npm install
+$ grunt
 $ cp debug.bowerrc .bowerrc
 $ bower install
-$ grunt 
 ```
 
 ## install
