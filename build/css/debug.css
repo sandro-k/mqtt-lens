@@ -1,0 +1,8 @@
+#menu {
+  background: red; }
+
+#content {
+  background: #008000; }
+
+#content .header {
+  background: yellow; }
