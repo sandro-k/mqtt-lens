@@ -25,7 +25,8 @@
     "test",
     "tests",
     "Gruntfile.js",
-    "package.json"
+    "package.json",
+    "build/css/*.map"
   ],
   "dependencies": {
     "polymer": "~0.3.3",
