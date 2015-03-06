@@ -1,23 +1,14 @@
 <link rel="import" href="../polymer/polymer.html"/>
-<link rel="import" href="../core-scaffold/core-scaffold.html">
-<link rel="import" href="../core-header-panel/core-header-panel.html">
-<link rel="import" href="../core-menu/core-menu.html">
-<link rel="import" href="../core-item/core-item.html">
 <link rel="import" href="../core-collapse/core-collapse.html">
 <link rel="import" href="../core-tooltip/core-tooltip.html">
-<link rel="import" href="../core-icon-button/core-icon-button.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../core-input/core-input.html"/>
-
-
+<link rel="import" href="../core-localstorage/core-localstorage.html">
 
 <!--custom components-->
 <link rel="import" href="../mqtt-connection/mqtt-connection.html">
 <link rel="import" href="../changeover-icon/changeover-icon.html">
-
 <link rel="import" href="../mqtt-connection-ui/mqtt-connection-ui.html">
-<link rel="import" href="../core-localstorage/core-localstorage.html">
-
 
 
 <polymer-element name="mqtt-lens" constructo="Mqttlens">
@@ -32,7 +23,6 @@
         height: 48px;
         width: 48px;
       }
-
     </style>
 
     <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
@@ -111,7 +101,7 @@
       </style>
     </template>
     <link rel="stylesheet" href="../mqtt-lens-style/build/layout.css"/>
-    <link rel="stylesheet" href="build/css/main.css"/>
+    <link rel="stylesheet" href="mqtt-lens.css"/>
 
     <!--git hub-->
     <!--<a href="https://github.com/sandro-k/mqtt-chrome">-->
@@ -119,7 +109,6 @@
            <!--src="../mqtt-lens/assets/github.png"-->
            <!--alt="Fork me on GitHub">-->
     <!--</a>-->
-
 
     <!--header-->
     <div id="header">
@@ -379,14 +368,6 @@
         this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
       },
 
-      attached: function () {
-      },
-
-      domReady: function () {
-      },
-
-      detached: function () {
-      },
 
       // functions
       leftMenuToggle: function () {
@@ -397,10 +378,6 @@
         for (var i = 0; i < this.savedConnections.length; i++) {
           this.createConnection(this.savedConnections[i], true);
         }
-      },
-
-      config: function () {
-
       },
 
       loadDummy: function () {
@@ -526,7 +503,7 @@
       },
 
       connectionSettings: function (inEvent, inDetail ,inSender) {
-        var self = this;
+//        var self = this;
         var connection = inSender.templateInstance.model.connection;
 
         var values = {};
@@ -553,8 +530,6 @@
         this.shadowRoot.appendChild(newConnectionUI);
 
         newConnectionUI.toggle();
-
-
       },
 
       toggleSubscribe: function (inEvent, inDetail ,inSender) {
@@ -610,8 +585,6 @@
           return "disconnected";
         }
       }
-
-
 
     });
   </script>
