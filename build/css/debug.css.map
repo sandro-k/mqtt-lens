@@ -1,7 +1,0 @@
-{
-"version": 3,
-"mappings": "AAAA,KAAM;EACH,UAAU,EAAE,GAAG;;AAGlB,QAAS;EACP,UAAU,EAAE,OAAO;;AAErB,gBAAiB;EACf,UAAU,EAAE,MAAM",
-"sources": ["../../src/sass/debug.scss"],
-"names": [],
-"file": "debug.css"
-}
