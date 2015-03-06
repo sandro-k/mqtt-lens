@@ -26,16 +26,16 @@
     "tests",
     "Gruntfile.js",
     "package.json",
-    "build/css/*.map"
+    "*.scss"
   ],
   "dependencies": {
-    "core-elements": "Polymer/core-elements#~0.5.5",
     "mqtt-connection": "sandro-k/mqtt-connection#master",
     "mqtt-subscription-ui": "sandro-k/mqtt-subscription-ui#master",
     "mqtt-message-ui": "sandro-k/mqtt-message-ui#master",
     "mqtt-connection-ui": "sandro-k/mqtt-connection-ui#master",
     "changeover-icon": "sandro-k/changeover-icon#master",
     "mqtt-lens-style": "sandro-k/mqtt-lens-style#master",
+    "core-elements": "Polymer/core-elements#~0.5.5",
     "core-localstorage": "Polymer/core-localstorage#~0.5.5",
     "polymer": "~0.5.5"
   }
