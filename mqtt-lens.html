@@ -10,6 +10,8 @@
 <link rel="import" href="../changeover-icon/changeover-icon.html">
 <link rel="import" href="../mqtt-connection-ui/mqtt-connection-ui.html">
 
+<link rel="import" href="../chrome-storage/chrome-storage.html">
+
 
 <polymer-element name="mqtt-lens" constructo="Mqttlens">
   <!-- outermost template defines the element's shadow DOM -->
@@ -25,7 +27,15 @@
       }
     </style>
 
-    <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
+
+    <template bind if="{{ chrome.storage == undefined }}">
+      <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
+    </template>
+    <template bind if="{{ chrome.storage != undefined }}">
+      <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
+    </template>
+
+
 
     <template repeat="{{ connection in mqttConnections }}">
       <style>
@@ -100,7 +110,7 @@
         }
       </style>
     </template>
-    <link rel="stylesheet" href="../mqtt-lens-style/build/layout.css"/>
+    <link rel="stylesheet" href="../mqtt-lens-style/mqtt-lens-style.css"/>
     <link rel="stylesheet" href="mqtt-lens.css"/>
 
     <!--git hub-->
@@ -366,6 +376,7 @@
       ready: function () {
         this.toast = this.$.toast;
         this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
+        this.addEventListener('chrome-storage-load', this.savedConnectionsLoaded);
       },
 
 
@@ -376,31 +387,11 @@
 
       savedConnectionsLoaded: function (){
         for (var i = 0; i < this.savedConnections.length; i++) {
+          // TODO (sandro-k) let user decide if connection should use cleanSession == false
+          // or create a new client ID, by default this should be cleanSession == false
+          this.savedConnections[i].cleanSession = false;
           this.createConnection(this.savedConnections[i], true);
         }
-      },
-
-      loadDummy: function () {
-        var values = {
-          "connectionID":"lensasasasasa",
-          "connectionName":"localhost",
-          "connectionColor":this.defaultConnectionColors[0],
-          "hostname":"ws://localhost",
-          "hostPort":665,
-          "clientID":"connectionID",
-          "cleanSession":true,
-          "useSSL":false,
-          "keepAlive":120,
-          "username":"Sandro",
-          "password":"test",
-          "passwordHashFunction":true,
-          "lastWillTopic":"",
-          "lastWillMessage":"",
-          "lastWillQoS":0,
-          "lastWillRetained":false,
-          "autoConnect":true};
-
-        this.createConnection(values);
       },
 
       addConnection: function () {
@@ -428,10 +419,10 @@
         // load values
         newConnectionUI.load(values)
 
+
         // add listener for save
         newConnectionUI.addEventListener("newMqttConnection", function(e) {
           self.createConnection(e.detail);
-
         });
 
         newConnectionUI.addEventListener("cancelNewMqttConnection", function() {
@@ -440,7 +431,6 @@
           // self.shadowRoot.removeChild(newConnectionUI);
         });
         this.shadowRoot.appendChild(newConnectionUI);
-
         newConnectionUI.toggle();
       },
 
