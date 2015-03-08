@@ -37,6 +37,6 @@
     "mqtt-lens-style": "sandro-k/mqtt-lens-style#master",
     "core-elements": "Polymer/core-elements#~0.5.5",
     "core-localstorage": "Polymer/core-localstorage#~0.5.5",
-    "polymer": "~0.5.5"
+    "polymer": "Polymer/polymer#~0.5.5"
   }
 }
