@@ -1,6 +1,6 @@
 {
   "name": "mqtt-lens",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "authors": [
     "Sandro Kock <sandro.kock@gmail.com>"
   ],
@@ -29,12 +29,13 @@
     "*.scss"
   ],
   "dependencies": {
-    "mqtt-connection": "sandro-k/mqtt-connection#master",
-    "mqtt-subscription-ui": "sandro-k/mqtt-subscription-ui#master",
-    "mqtt-message-ui": "sandro-k/mqtt-message-ui#master",
-    "mqtt-connection-ui": "sandro-k/mqtt-connection-ui#master",
-    "changeover-icon": "sandro-k/changeover-icon#master",
-    "mqtt-lens-style": "sandro-k/mqtt-lens-style#master",
+    "mqtt-connection": "sandro-k/mqtt-connection#~0.0.5",
+    "mqtt-subscription-ui": "sandro-k/mqtt-subscription-ui#~0.0.4",
+    "mqtt-message-ui": "sandro-k/mqtt-message-ui#~0.0.3",
+    "mqtt-connection-ui": "sandro-k/mqtt-connection-ui#~0.0.3",
+    "changeover-icon": "sandro-k/changeover-icon#~0.0.2",
+    "mqtt-lens-style": "sandro-k/mqtt-lens-style#~0.0.3",
+    "chrome-storage" : "sandro-k/chrome-storage#~0.0.2",
     "core-elements": "Polymer/core-elements#~0.5.5",
     "core-localstorage": "Polymer/core-localstorage#~0.5.5",
     "polymer": "Polymer/polymer#~0.5.5"
