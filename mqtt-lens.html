@@ -28,10 +28,10 @@
     </style>
 
 
-    <template bind if="{{ chrome.storage == undefined }}">
+    <template bind if="{{ chrome.storage == 'undefined' }}">
       <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
     </template>
-    <template bind if="{{ chrome.storage != undefined }}">
+    <template bind if="{{ chrome.storage != 'undefined' }}">
       <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
     </template>
 
