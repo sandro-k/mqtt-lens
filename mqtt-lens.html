@@ -27,11 +27,10 @@
       }
     </style>
 
-
-    <template bind if="{{ chrome.storage == 'undefined' }}">
+    <template bind if="{{ ! checkForChromeStorage() }}">
       <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
     </template>
-    <template bind if="{{ chrome.storage != 'undefined' }}">
+    <template bind if="{{ checkForChromeStorage() }}">
       <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
     </template>
 
@@ -574,7 +573,17 @@
         } else {
           return "disconnected";
         }
+      },
+
+      checkForChromeStorage: function () {
+        if (chrome.storage){
+          return true;
+        } else {
+          return false;
+        }
       }
+
+
 
     });
   </script>
