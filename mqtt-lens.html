@@ -9,6 +9,7 @@
 <link rel="import" href="../mqtt-connection/mqtt-connection.html">
 <link rel="import" href="../changeover-icon/changeover-icon.html">
 <link rel="import" href="../mqtt-connection-ui/mqtt-connection-ui.html">
+<link rel="import" href="mqtt-message-dashboard.html">
 
 <link rel="import" href="../chrome-storage/chrome-storage.html">
 
@@ -27,6 +28,8 @@
       }
     </style>
 
+
+
     <template bind if="{{ ! checkForChromeStorage() }}">
       <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
     </template>
@@ -34,80 +37,52 @@
       <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
     </template>
 
+    <template repeat="{{ connection in mqttConnections}}">
+      <core-style id="mqttlens">
 
-
-    <template repeat="{{ connection in mqttConnections }}">
-      <style>
-        :host /deep/ .{{connection.connectionID}}.zero.bg  {
-
-        background: {{connection.connectionColors[0]}}!important;
+        .mqttlens.zero.border {
+          border-left: 3px solid #00FF00!important;
+          border-right: 1px solid #0000FF!important;
         }
 
-        :host /deep/ .{{connection.connectionID}}.zero.border  {
+
+        .{{connection.connectionID}} h1  {
+          color: {{connection.connectionColors[0]}}!important;
+        }
+      </core-style>
+
+
+      <core-style id="[[connection.connectionID]]">
+
+        .{{connection.connectionID}}.zero.border  {
         border-left: 3px solid {{connection.connectionColors[0]}}!important;
         border-right: 1px solid {{connection.connectionColors[0]}}!important;
         }
 
-        :host /deep/ .{{connection.connectionID}} .badge  {
+        .{{connection.connectionID}} .badge  {
         background: {{connection.connectionColors[0]}}!important;
-
         }
 
 
-        :host /deep/ .message-{{connection.connectionID}}.row.message  {
+        .message-{{connection.connectionID}}.row.message  {
         border-top: 2px solid {{connection.connectionColors[9]}}!important;
         border-left: 3px solid {{connection.connectionColors[0]}}!important;
         border-bottom: 2px solid {{connection.connectionColors[9]}}!important;
         -webkit-animation: okAnimationa 5s;
         }
 
-
-        :host /deep/ .{{connection.connectionID}}.one.bg   {
-
-        background: {{connection.connectionColors[1]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.two.bg   {
-
-        background: {{connection.connectionColors[2]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.three.bg   {
-
-        background: {{connection.connectionColors[3]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.four.bg   {
-
-        background: {{connection.connectionColors[4]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.five.bg   {
-
-        background: {{connection.connectionColors[5]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.six.bg   {
-
-        background: {{connection.connectionColors[6]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.seven.bg   {
-        background: {{connection.connectionColors[7]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.eight.bg   {
-        background: {{connection.connectionColors[8]}}!important;
-        }
-
-        :host /deep/ .{{connection.connectionID}}.nine.bg   {
-        background: {{connection.connectionColors[9]}}!important;
-        }
+      <template repeat="{{ index in colorsIndex}}">
+          .{{connection.connectionID}}.{{index | indexToString }}.bg {
+             background: {{connection.connectionColors[index]}}!important;
+          }
+      </template>
 
         paper-toast {
           z-index: 1001!important;
         }
-      </style>
+        </core-style>
+
+      <core-style ref="[[connection.connectionID]]"></core-style>
     </template>
     <link rel="stylesheet" href="../mqtt-lens-style/mqtt-lens-style.css"/>
     <link rel="stylesheet" href="mqtt-lens.css"/>
@@ -170,7 +145,6 @@
                <core-icon icon="add" on-click="{{addConnection}}"></core-icon>
              </core-tooltip>
 
-
              <changeover-icon
                  icon="expand-less"
                  down="expand-more"
@@ -184,6 +158,7 @@
           <div class="items">
               <core-collapse id="connectionListCollapse" target="{{$.connectionList}}" opened></core-collapse>
               <ul id="connectionList">
+
                 <template repeat="{{ connection in mqttConnections }}">
 
                   <li class="{{connection.connectionID}} five bg" layout horizontal center>
@@ -215,124 +190,20 @@
         </div>
 
         <div id="subscriptions">
-        <template repeat="{{connection in mqttConnections}}">
-          <div class="subheader {{connection.connectionID}} nine bg">
-            <div class="{{connection.connectionID}} zero border" layout horizontal center>
-              <div flex>
-                <h2>Connection: {{connection.connectionName}}</h2>
-              </div>
-            </div>
-          </div>
+          <!--Connection UI-->
+          <template repeat="{{connection in mqttConnections}}">
 
-        <div class="subheader {{connection.connectionID}} nine bg">
-          <div class="{{connection.connectionID}} zero border" layout horizontal center>
-            <div flex>
-              <h2>Subscribe</h2>
-            </div>
-            <div class="menu-buttons right">
-              <changeover-icon
-                  target="{{connection.connectionID}}"
-                  icon="expand-less"
-                  down="expand-more"
-                  up="expand-less"
-                  on-click="{{toggleSubscribe}}"></changeover-icon>
+            <mqtt-message-dashboard
+                on-mqtt-new-subscription="{{addSubscription}}"
+                on-mqtt-new-publish="{{mqttPublish}}"
+                connectionID="{{connection.connectionID}}"
+                connectionName="{{connection.connectionName}}">
+            </mqtt-message-dashboard>
 
-            </div>
-          </div>
-          <core-collapse id="subscriptionCollapse{{connection.connectionID}}" opened>
-            <div class="{{connection.connectionID}} zero border space" layout horizontal end wrap>
-              <div class="min-200 ml" flex five>
-                <div layout vertical>
-                  <strong class="form-header">Topic</strong>
-                  <input class="form-control space-left topicInput"
-                         value="{{subscriptionTopic}}"
-                         placeholder="eg. public/me/+">
-                </div>
-              </div>
-              <div class="min-200 mlr" flex two>
-                <div layout vertical>
-                  <strong class="form-header">OoS</strong>
-                  <select class="form-control min-200" value="{{subscriptionTopicQoS}}">
-                    <option value="0">0 - at most once</option>
-                    <option value="1">1 - at least once</option>
-                    <option value="2">2 - exactly once</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <div class="mr" layout vertical>
-                  <a class="btn btn-primary" on-click="{{addSubscription}}">Subscribe</a>
-                </div>
-              </div>
-            </div>
-          </core-collapse>
-        </div>
 
-        <div class="subheader {{connection.connectionID}} nine bg">
-          <div class="{{connection.connectionID}} zero border" layout horizontal center>
-              <div flex>
-                <h2>Publish</h2>
-              </div>
-              <div class="menu-buttons right">
-                <changeover-icon
-                    target="{{connection.connectionID}}"
-                    icon="expand-less"
-                    down="expand-more"
-                    up="expand-less"
-                    on-click="{{togglePublish}}"></changeover-icon>
 
-              </div>
-            </div>
-            <core-collapse id="publishCollapse{{connection.connectionID}}" opened>
-              <div class="{{connection.connectionID}} zero border space" layout horizontal end wrap>
-                <div class="min-200 ml" flex five>
-                  <div layout vertical>
-                    <strong class="form-header">Topic</strong>
-                    <input class="form-control space-left topicInput"
-                           value="{{publishTopic}}"
-                           placeholder="eg. public/me/+">
-                  </div>
-                </div>
-                <div class="min-200 mlr" flex two>
-                  <div layout vertical>
-                    <strong class="form-header">OoS</strong>
-                    <select class="form-control min-200" value="{{publishTopicQoS}}">
-                      <option value="0">0 - at most once</option>
-                      <option value="1">1 - at least once</option>
-                      <option value="2">2 - exactly once</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <div class="mr" layout vertical>
-                    <a class="btn btn-primary" on-click="{{mqttPublish}}">Publish</a>
-                  </div>
-                </div>
-              </div>
-              <div class="{{connection.connectionID}} zero border space" layout horizontal center>
-                <div flex>
-                  <div class="mr" layout vertical>
-                    <strong class="form-header">Message</strong>
-                    <textarea class="form-control mlr"
-                              placeholder="either plain text or JSON"
-                              rows="3" value="{{publishValue}}"></textarea>
-                  </div>
-                </div>
-              </div>
-            </core-collapse>
-          </div>
-
-          <div id="ID{{connection.connectionID}}" class="item">
-            <div class="subheader {{connection.connectionID}} nine bg">
-              <div class="{{connection.connectionID}} zero border" layout horizontal center>
-                <div flex>
-                  <h2>Subscriptions</h2>
-                </div>
-             </div>
-           </div>
-
-          </div>
-        </template>
+          </template>
+          <!--END Connection UI-->
         </div>
 
       </div>
@@ -360,7 +231,10 @@
 
       mqttConnections: [],
 
+      colorsIndex: [0, 1, 2, 3, 4, 5, 6, 7, 7, 9],
+
       defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb' , '#cc2255'],
+
       colorCounter: 1,
 
       created: function () {
@@ -369,7 +243,7 @@
         this.publishTopic = '';
         this.publishValue = '';
         this.savedConnections = [];
-
+        this.colorsIndex = [0, 1, 2, 3, 4, 5, 6, 7, 7, 9];
       },
 
       ready: function () {
@@ -378,23 +252,50 @@
         this.addEventListener('chrome-storage-load', this.savedConnectionsLoaded);
       },
 
-
       // functions
       leftMenuToggle: function () {
         this.leftMenu = !this.leftMenu;
       },
 
       savedConnectionsLoaded: function (){
+        var currentConnection;
+
         for (var i = 0; i < this.savedConnections.length; i++) {
           // TODO (sandro-k) let user decide if connection should use cleanSession == false
           // or create a new client ID, by default this should be cleanSession == false
-          this.savedConnections[i].cleanSession = false;
-          this.createConnection(this.savedConnections[i], true);
+
+          currentConnection = this.savedConnections[i];
+          currentConnection.connectionColors = ['', '', '', '', '', '', '', '', '', ''];
+          currentConnection.connectionColors = this.generateConnectionColor(currentConnection.connectionColor);
+
+
+          if (typeof currentConnection.connectionEnabled === "undefined"){
+            currentConnection.connectionEnabled = true;
+            this.savedConnections[i] = currentConnection;
+            this.savedConnections = _.without(this.savedConnections, currentConnection);
+            this.savedConnections.push(currentConnection);
+          }
+
+//          console.log(currentConnection.connectionEnabled);
+
+          if (currentConnection.connectionEnabled === true){
+            try {
+              currentConnection.cleanSession = false;
+              this.createConnection(this.savedConnections[i], true);
+            } catch (e) {
+              console.log(e);
+              currentConnection.connectionEnabled = false;
+              this.savedConnections[i] = currentConnection;
+              // remove connection that made cause the error
+              this.savedConnections = _.without(this.savedConnections, currentConnection);
+              this.savedConnections.push(currentConnection);
+            }
+          }
         }
       },
 
       addConnection: function () {
-        var self = this;
+//        var self = this;
         var values = {
           "ID":"",
           "connectionName":"",
@@ -405,6 +306,7 @@
           "keepAlive":120,
           "passwordHashFunction":true,
           "lastWillRetained":true,
+          "connectionEnabled": true,
           "autoConnect":true};
 
         this.colorCounter++;
@@ -418,17 +320,17 @@
         // load values
         newConnectionUI.load(values)
 
-
         // add listener for save
         newConnectionUI.addEventListener("newMqttConnection", function(e) {
-          self.createConnection(e.detail);
-        });
+          this.createConnection(e.detail);
+        }.bind(this));
 
         newConnectionUI.addEventListener("cancelNewMqttConnection", function() {
           // remove form shadowRoot not needed any more
           // todo(sandro-k) removing the UI form dom causes the overlay to stay on the site fix this
           // self.shadowRoot.removeChild(newConnectionUI);
         });
+
         this.shadowRoot.appendChild(newConnectionUI);
         newConnectionUI.toggle();
       },
@@ -438,9 +340,7 @@
           this.savedConnections.push(conValues);
         }
 
-        var self = this;
         var mqttCon = new MqttConnection();
-
         for (var property in mqttCon.publish) {
           if (conValues[property]) {
             mqttCon[property] = conValues[property];
@@ -451,8 +351,8 @@
         this.mqttConnections.push(mqttCon);
 
         mqttCon.addEventListener("toast", function (e, detail, sender) {
-          self.makeToast.apply(self, arguments);
-        });
+          this.makeToast.apply(this, arguments);
+        }.bind(this));
       },
 
       connectionListCollapse: function () {
@@ -474,25 +374,16 @@
       },
 
       addSubscription: function (inEvent, inDetail ,inSender) {
-        // polymer magic
-        var connection = inSender.templateInstance.model.connection;
-        // get the target
-        var target = this.$.subscriptions.querySelector('#ID'+connection.connectionID);
-
-        var options = {
-          qos: parseInt(this.subscriptionTopicQoS)
-        }
-
+        console.log("addSubscription");
+        // there can only be one connection the the ID
+//        var connection = _.where(this.mqttConnections, {connectionID: inDetail.connectionID})[0];
+        var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
         // subscribe
-        connection.subscribe(this.subscriptionTopic, options , target, function() {
-
-        });
-
-
+        connection.subscribe(inDetail.topic, {"qos":inDetail.qos} , inDetail.target);
       },
 
+
       connectionSettings: function (inEvent, inDetail ,inSender) {
-//        var self = this;
         var connection = inSender.templateInstance.model.connection;
 
         var values = {};
@@ -532,21 +423,17 @@
       },
 
       mqttPublish: function (inEvent, inDetail ,inSender) {
+        console.log("mqttPublish");
 
-        var topic = this.publishTopic;
-        var qos = parseInt(this.publishTopicQoS)
-        var message = this.publishValue;
+        var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
 
-        var options = {
-          qos: qos,
-          retain: false
-        }
-
-        var self = this;
-        var connection = inSender.templateInstance.model.connection;
-        connection.mqttPublish(topic, message, options, function() {
-
+        connection.mqttPublish(inDetail.topic, inDetail.message, inDetail.options, function() {
+          console.log("Published success")
         });
+      },
+
+      getConnectionFromConnectionID: function(connectionID){
+        return _.where(this.mqttConnections, {"connectionID": connectionID})[0];
       },
 
       removeConnection: function (inEvent, inDetail ,inSender) {
@@ -575,15 +462,61 @@
         }
       },
 
+      debug: function(param){
+        console.log (param);
+//        if (typeof param === 'undefined'){
+//          return "";
+//        }
+        return param;
+      },
+
+      log: function(param){
+        console.log (param);
+      },
+
       checkForChromeStorage: function () {
         if (chrome.storage){
           return true;
         } else {
           return false;
         }
-      }
+      },
 
+      /**
+       * A helper function to lighten or darken colors
+       * @param color the color without or without the datsh (#)
+       * @param percent how mutch the color should be lightend or darkend [0.00, 1.00]
+       * @returns {string} the color in hex with the dash (#)
+       */
+      shadeColor: function (color, percent) {
+        var f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
+        return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
+      },
 
+      indexToString: function(index){
+        switch(index){
+          case 0: return 'zero';
+          case 1: return 'one';
+          case 2: return 'two';
+          case 3: return 'three';
+          case 4: return 'four';
+          case 5: return 'five';
+          case 6: return 'six';
+          case 7: return 'seven';
+          case 8: return 'eight';
+          case 9: return 'nine';
+
+          default: return 'none';
+        }
+      },
+
+      generateConnectionColor: function (color) {
+        var colors = ['', '', '', '', '', '', '', '', '', ''];
+        for (var i = 0; i < 10; i++) {
+          colors[i] = this.shadeColor(color, 0.10 * i);
+        }
+        return colors;
+        }
 
     });
   </script>
