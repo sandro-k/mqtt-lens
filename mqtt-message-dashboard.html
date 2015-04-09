@@ -1,10 +1,239 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../changeover-icon/changeover-icon.html">
+<link rel="import" href="../core-collapse/core-collapse.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../core-field/core-field.html">
+<link rel="import" href="../paper-input/paper-input-decorator.html">
+<link rel="import" href="../paper-input/paper-autogrow-textarea.html">
+<link rel="import" href="../core-style/core-style.html">
 
-</body>
-</html>
+
+<link rel="import" href="mqttlens-qos-dropdown.html">
+
+<core-style id="message-dashboard-style">
+  <style>
+    :host {
+      margin-top: 1em;
+    }
+
+    paper-button {
+      margin-top: 4px;
+      height: 40px;
+    }
+
+    paper-button.colored {
+      color: #22cc33;
+    }
+
+    paper-button[raised].colored {
+      background: #22cc33;
+      color: #fff;
+    }
+
+    core-field {
+      border: 1px solid #ddd;
+      margin: 4px 4px 4px 0;
+      height: 40px;
+      background: #ffffff;
+    }
+
+    select.form-control {
+      height: 40px;
+    }
+
+
+
+    h2, h3 {
+      margin-top: 0.2em
+      margin-bottom: 0.2em;
+      color: #626267;
+      font-weight: 200;
+      margin-left: 4px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    paper-input-decorator {
+      border: 1px solid #ddd;
+      margin-top: .2em;
+      margin-bottom: .2em;
+      background: #FFFFFF;
+    }
+  </style>
+</core-style>
+
+
+<polymer-element name="mqtt-message-dashboard">
+  <template>
+    <core-style ref="[[connectionID]]"></core-style>
+    <core-style ref="mqttlens"></core-style>
+
+    <core-style ref="message-dashboard-style"></core-style>
+
+
+    <div class="subheader {{connectionID}} nine bg">
+      <div class="{{connectionID}} zero border" layout horizontal center>
+        <div flex>
+          <h2>Connection: {{connectionName}}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="subheader {{connectionID}} nine bg">
+      <div class="{{connectionID}} zero border" layout horizontal center>
+
+        <div flex>
+          <h3>Subscribe</h3>
+        </div>
+
+        <div class="menu-buttons right">
+
+          <changeover-icon
+              target="{{connectionID}}"
+              icon="expand-less"
+              down="expand-more"
+              up="expand-less"
+              on-click="{{toggleSubscribe}}">
+
+          </changeover-icon>
+
+        </div>
+      </div>
+      <core-collapse id="subscriptionCollapse{{connectionID}}" opened style="overflow: visible!important;">
+        <div class="{{connectionID}} zero border space" layout horizontal>
+
+          <core-field class="min-200 ml" flex five>
+            <input placeholder="topic" value="{{subscriptionTopic}}" flex>
+            <icon></icon>
+          </core-field>
+
+          <div class="mr">
+            <mqttlens-qos-dropdown flex selectedItem="{{subscriptionTopicQoS}}"></mqttlens-qos-dropdown>
+            <paper-button raised class="colored" on-click="{{addSubscription}}">Subscribe</paper-button>
+          </div>
+        </div>
+      </core-collapse>
+    </div>
+
+    <div class="subheader {{connectionID}} nine bg">
+      <div class="{{connectionID}} zero border" layout horizontal center>
+        <div flex>
+          <h3>Publish</h3>
+        </div>
+        <div class="menu-buttons right">
+          <changeover-icon
+              target="{{connectionID}}"
+              icon="expand-less"
+              down="expand-more"
+              up="expand-less"
+              on-click="{{togglePublish}}"></changeover-icon>
+
+        </div>
+      </div>
+      <core-collapse id="publishCollapse{{connectionID}}" opened style="overflow: visible!important;">
+        <div class="{{connectionID}} zero border space" layout horizontal end wrap>
+
+          <core-field flex four class="ml">
+            <input placeholder="topic" value="{{publishTopic}}" flex>
+          </core-field>
+          <div class="mr">
+            <mqttlens-qos-dropdown flex selectedItem="{{publishTopicQoS}}"></mqttlens-qos-dropdown>
+
+            <paper-checkbox label="Retained"></paper-checkbox>
+
+            <paper-button raised class="colored" on-click="{{mqttPublish}}">Publish</paper-button>
+          </div>
+
+        </div>
+        <div class="{{connectionID}} zero border space" layout horizontal center>
+
+          <paper-input-decorator class="ml mr" label="Message" floatingLabel flex>
+            <paper-autogrow-textarea rows="2" maxRows="15">
+              <textarea value="{{publishValue}}"></textarea>
+            </paper-autogrow-textarea>
+          </paper-input-decorator>
+        </div>
+      </core-collapse>
+    </div>
+
+    <div id="connectionID" class="item">
+      <div class="subheader {{connectionID}} nine bg">
+        <div class="{{connectionID}} zero border" layout horizontal center>
+          <div flex>
+            <h2>Subscriptions</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </template>
+  <script>
+    Polymer('mqtt-message-dashboard', {
+      publish: {
+
+        connectionName: "",
+        connectionID: "",
+        subscriptionTopic: "",
+        subscriptionTopicQoS: 0,
+        publishTopic: "",
+        publishTopicQoS: 0,
+        publishValue: ""
+
+      },
+
+
+
+      toggleSubscribe: function (inEvent, inDetail, inSender) {
+        // todo(sandro-k) unclean hack please fix
+        console.log("toggleSubscribe");
+        inSender.templateInstance.firstNode.parentNode.querySelector("#subscriptionCollapse" + inSender.getAttribute("target")).toggle();
+      },
+
+      togglePublish: function (inEvent, inDetail, inSender) {
+        // todo(sandro-k) unclean hack please fix
+        console.log("togglePublish");
+        inSender.templateInstance.firstNode.parentNode.querySelector("#publishCollapse" + inSender.getAttribute("target")).toggle();
+      },
+
+      addSubscription: function (inEvent, inDetail, inSender) {
+        console.log("addSubscription");
+//        // polymer magic
+        var connectionID = inSender.templateInstance.model.connectionID;
+
+        var message = {
+          "connectionID": connectionID,
+          "topic": this.subscriptionTopic,
+          "qos": parseInt(this.subscriptionTopicQoS),
+          target: this.$.connectionID
+        };
+
+        console.log(message);
+
+        this.asyncFire("mqtt-new-subscription", message);
+
+      },
+
+      mqttPublish: function (inEvent, inDetail, inSender) {
+
+        console.log("mqttPublish");
+        var connectionID = inSender.templateInstance.model.connectionID;
+        var message = {
+          "connectionID": connectionID,
+          "topic": this.publishTopic,
+          "options": {
+            "qos": parseInt(this.publishTopicQoS),
+            "retain": false
+          },
+          "message": this.publishValue
+        };
+        this.asyncFire("mqtt-new-publish", message);
+      },
+
+      log: function(param){
+        console.log (param);
+      },
+
+
+    });
+  </script>
+</polymer-element>
