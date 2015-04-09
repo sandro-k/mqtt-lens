@@ -1,0 +1,48 @@
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../core-menu/core-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+
+<polymer-element name="mqttlens-qos-dropdown">
+  <template>
+    <style>
+      :host {
+        height: 40px;
+        margin: 4px 8px;
+      }
+
+      paper-dropdown-menu {
+        margin: 4px 0;
+        padding: 0px 4px 0px 12px;
+        border: 1px solid #ddd;
+        height: 40px;
+      }
+
+    </style>
+    <paper-dropdown-menu label="QoS" style="background: #ffffff">
+      <paper-dropdown class="dropdown">
+        <core-menu class="menu" on-core-select="{{selectAction}}" id="selector" valueattr="value" selected="{{selectedItem}}">
+          <template repeat="{{item in items}}">
+            <paper-item value="[[item.value]]">[[item.text]]</paper-item>
+          </template>
+        </core-menu>
+      </paper-dropdown>
+    </paper-dropdown-menu>
+  </template>
+  <script>
+    Polymer("mqttlens-qos-dropdown", {
+      publish: {
+        items: [
+          {value: 0, text: "0 - at most once"},
+          {value: 1, text: "1 - at least once"},
+          {value: 2, text: "2 - exactly once"}
+        ],
+        selectedItem: 0
+      },
+
+      selectAction: function (e, detail) {
+
+      }
+    });
+  </script>
+</polymer-element>
