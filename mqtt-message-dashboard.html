@@ -43,7 +43,6 @@
     }
 
 
-
     h2, h3 {
       margin-top: 0.2em
       margin-bottom: 0.2em;
@@ -59,6 +58,10 @@
       margin-bottom: .2em;
       background: #FFFFFF;
     }
+
+    .min-200 {
+      min-width: 200px;
+    }
   </style>
 </core-style>
 
@@ -70,6 +73,8 @@
 
     <core-style ref="message-dashboard-style"></core-style>
 
+    <core-media-query query="max-width: 600px" queryMatches="{{narrow}}"></core-media-query>
+    <!--{{narrow}}-->
 
     <div class="subheader {{connectionID}} nine bg">
       <div class="{{connectionID}} zero border" layout horizontal center>
@@ -101,12 +106,14 @@
       </div>
       <core-collapse id="subscriptionCollapse{{connectionID}}" opened style="overflow: visible!important;">
         <div class="{{connectionID}} zero border space" layout horizontal>
+          <!-- vertical?="{{narrow}}" horizontal?="{{!narrow}}"-->
 
-          <core-field class="min-200 ml" flex five>
+          <core-field class="ml" flex five>
             <input placeholder="topic" value="{{subscriptionTopic}}" flex>
             <icon></icon>
           </core-field>
 
+          <!--{{ {ml: narrow} | tokenList }}" flex?="{{narrow}}"-->
           <div class="mr">
             <mqttlens-qos-dropdown flex selectedItem="{{subscriptionTopicQoS}}"></mqttlens-qos-dropdown>
             <paper-button raised class="colored" on-click="{{addSubscription}}">Subscribe</paper-button>

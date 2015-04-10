@@ -5,6 +5,7 @@
 <link rel="import" href="../core-input/core-input.html"/>
 <link rel="import" href="../core-localstorage/core-localstorage.html">
 
+
 <!--custom components-->
 <link rel="import" href="../mqtt-connection/mqtt-connection.html">
 <link rel="import" href="../changeover-icon/changeover-icon.html">
@@ -13,6 +14,8 @@
 
 <link rel="import" href="../chrome-storage/chrome-storage.html">
 
+<link rel="import" href="../paper-shadow/paper-shadow.html"/>
+<link rel="import" href="../core-drawer-panel/core-drawer-panel.html">
 
 <polymer-element name="mqtt-lens" constructo="Mqttlens">
   <!-- outermost template defines the element's shadow DOM -->
@@ -26,12 +29,23 @@
         height: 48px;
         width: 48px;
       }
+
+      .badge.zero.bg.connected {
+        background: limegreen;
+        color: limegreen;
+      }
+
+      .badge.zero.bg.disconnected {
+        background: red;
+        color: red;
+      }
     </style>
 
 
+    <!--on-chrome-storage-load this.savedConnectionsLoaded-->
 
     <template bind if="{{ ! checkForChromeStorage() }}">
-      <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}"></core-localstorage>
+      <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}" on-core-localstorage-load="{{savedConnectionsLoaded}}></core-localstorage>
     </template>
     <template bind if="{{ checkForChromeStorage() }}">
       <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
@@ -39,6 +53,8 @@
 
     <template repeat="{{ connection in mqttConnections}}">
       <core-style id="mqttlens">
+
+
 
         .mqttlens.zero.border {
           border-left: 3px solid #00FF00!important;
@@ -54,26 +70,26 @@
 
       <core-style id="[[connection.connectionID]]">
 
-        .{{connection.connectionID}}.zero.border  {
-        border-left: 3px solid {{connection.connectionColors[0]}}!important;
-        border-right: 1px solid {{connection.connectionColors[0]}}!important;
+        :host /deep/ .{{connection.connectionID}}.zero.border  {
+        border-left: 3px solid {{connection.connectionColors[0]}};
+        border-right: 1px solid {{connection.connectionColors[0]}};
         }
 
-        .{{connection.connectionID}} .badge  {
-        background: {{connection.connectionColors[0]}}!important;
+        :host /deep/ .{{connection.connectionID}} .badge  {
+        background: {{connection.connectionColors[0]}};
         }
 
 
-        .message-{{connection.connectionID}}.row.message  {
-        border-top: 2px solid {{connection.connectionColors[9]}}!important;
-        border-left: 3px solid {{connection.connectionColors[0]}}!important;
-        border-bottom: 2px solid {{connection.connectionColors[9]}}!important;
+        :host /deep/ .message-{{connection.connectionID}}.row.message  {
+        border-top: 2px solid {{connection.connectionColors[9]}};
+        border-left: 3px solid {{connection.connectionColors[0]}};
+        border-bottom: 2px solid {{connection.connectionColors[9]}};
         -webkit-animation: okAnimationa 5s;
         }
 
       <template repeat="{{ index in colorsIndex}}">
-          .{{connection.connectionID}}.{{index | indexToString }}.bg {
-             background: {{connection.connectionColors[index]}}!important;
+          :host /deep/ .{{connection.connectionID}}.{{index | indexToString }}.bg {
+             background: {{connection.connectionColors[index]}};
           }
       </template>
 
@@ -87,30 +103,24 @@
     <link rel="stylesheet" href="../mqtt-lens-style/mqtt-lens-style.css"/>
     <link rel="stylesheet" href="mqtt-lens.css"/>
 
-    <!--git hub-->
-    <!--<a href="https://github.com/sandro-k/mqtt-chrome">-->
-      <!--<img class="github rot-90"-->
-           <!--src="../mqtt-lens/assets/github.png"-->
-           <!--alt="Fork me on GitHub">-->
-    <!--</a>-->
+    <core-drawer-panel>
+
+      <div drawer>MENU</div>
+
+      <div main>
+        <button core-drawer-toggle>toggle drawer</button>
+      </div>
+
+    </core-drawer-panel>
 
     <!--header-->
     <div id="header">
       <header class="header gradient">
         <div class="header-wrapper">
-
           <div class="row">
-
             <div class="col-xs-8 col-sm-10">
               <h1 class="app-name"><core-icon icon="search" class="big rot-75"></core-icon> {{appName}}<span>{{appSubname}}</span></h1>
             </div>
-
-            <!--<div class="col-xs-4 col-sm-2">-->
-              <!--<h1 on-click="{{config}}" class="config-icon pull-right config extra-margin">-->
-                <!--<span class="glyphicon glyphicon-cog"></span>-->
-              <!--</h1>-->
-            <!--</div>-->
-
           </div>
         </div>
       </header>
@@ -160,17 +170,19 @@
               <ul id="connectionList">
 
                 <template repeat="{{ connection in mqttConnections }}">
-
                   <li class="{{connection.connectionID}} five bg" layout horizontal center>
                     <div flex>
+                      <core-tooltip label='{{connection.connected | connectedFilter}}' position="right">
+                          <span class="badge zero bg {{connection.connected | connectedFilter}}"> &#9679; </span>
+                      </core-tooltip>
                       <span class="wraptext">{{connection.connectionName}}</span>
-                      <span class="badge {{connection.connectionID}} zero bg">{{connection.connected | connectedFilter}}</span>
+                      <!--<span class="badge {{connection.connectionID}} zero bg">{{connection.connected | connectedFilter}}</span>-->
                     </div>
                     <core-icon icon="settings" size="14" on-click="{{connectionSettings}}"></core-icon>
                     <core-icon icon="delete"  on-click="{{removeConnection}}"></core-icon>
                   </li>
-
                 </template>
+
               </ul>
           </div>
       </div>
@@ -185,8 +197,6 @@
           <div flex>
             <h1>&nbsp;</h1>
           </div>
-          <div class="menu-buttons right">
-          </div>
         </div>
 
         <div id="subscriptions">
@@ -200,8 +210,6 @@
                 connectionName="{{connection.connectionName}}">
             </mqtt-message-dashboard>
 
-
-
           </template>
           <!--END Connection UI-->
         </div>
@@ -212,6 +220,7 @@
     </div>
 
     <paper-toast duration="4000" id="toast" status="{{toaststatus}}"></paper-toast>
+
     <content>
     </content>
 
@@ -248,7 +257,7 @@
 
       ready: function () {
         this.toast = this.$.toast;
-        this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
+//        this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
         this.addEventListener('chrome-storage-load', this.savedConnectionsLoaded);
       },
 
