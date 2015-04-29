@@ -2,9 +2,71 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title></title>
+  <title>Demo MQTTLens Theme</title>
+  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="../core-style/core-style.html">
+  <link rel="import" href="mqttlens-theme.html">
 </head>
 <body>
 
+<template is="auto-binding">
+  <style>
+    div {
+      margin-top: 0.5em;
+      padding: 0.2em;
+      color: #FFFFFF;
+      font-size: 1em;
+    }
+  </style>
+  <template repeat="{{connection in g.mqttlens.mqttConnections}}">
+    <core-style ref="mqttlenstheme"></core-style>
+    <input type="color" value="{{connection.connectionColor}}">
+    <h1 class="{{connection.connectionID}}">{{connection.connectionID}}</h1>
+
+    <div class="{{connection.connectionID}} zero border">{{connection.connectionID}} zero border</div>
+
+    <div class="{{connection.connectionID}} badge">{{connection.connectionID}} badge</div>
+
+    <div class="message-{{connection.connectionID}} row message">.message-{{connection.connectionID}}.row.message</div>
+
+    <template repeat="{{ index, i in g.mqttlens.colorsIndex}}">
+      <div class="{{connection.connectionID}} {{index}} bg">{{connection.connectionID}} {{index}} bg</div>
+    </template>
+
+  </template>
+
+</template>
+<script>
+  (function() {
+
+    addEventListener('polymer-ready', function() {
+
+      CoreStyle.g.mqttlens = CoreStyle.g.mqttlens || {};
+      CoreStyle.g.mqttlens.mqttConnections = CoreStyle.g.mqttlens.mqttConnections || [];
+
+      var con1 = new MqttlensConnectionContainer();
+      con1.connectionID = "lens_bbb";
+      con1.connectionColor = "#0000FF";
+      CoreStyle.g.mqttlens.mqttConnections.push(con1);
+
+      var con2 = new MqttlensConnectionContainer();
+      con2.connectionID = "lens_aaa";
+      con2.connectionColor = "#FF0000";
+      CoreStyle.g.mqttlens.mqttConnections.push(con2);
+
+      var con3 = new MqttlensConnectionContainer();
+      con3.connectionID = "lens_bbb";
+      con3.connectionColor = "#0000FF";
+      CoreStyle.g.mqttlens.mqttConnections.push(con3);
+
+      addEventListener('template-bound', function(e) {
+        console.log("template-bound");
+        e.target.g = CoreStyle.g;
+      });
+    });
+
+  })();
+</script>
+<script src="../underscore/underscore.js"></script>
 </body>
 </html>
