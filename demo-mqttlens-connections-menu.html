@@ -2,9 +2,79 @@
 <html>
 <head lang="en">
   <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
+  <title>MQTT MESSAGE DASHBOARD DEMO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="../webcomponentsjs/webcomponents.js"></script>
 
+  <link rel="import" href="mqttlens-connections-menu.html"/>
+</head>
+<body unresolved fullbleed>
+<template is="auto-binding">
+  <mqttlens-connections-menu mqttConnections="{{mqttConnections}}">
+  </mqttlens-connections-menu>
+</template>
+<script>
+  scope = document.querySelector('template[is=auto-binding]');
+
+  scope.mqttConnections = [];
+  scope.mqttConnections.push({
+    "mode": "new",
+    "connectionID": "lens_UtLB1wmKp8AOLCbWyvKObNqT97r",
+    "connectionName": "127.0.0.1",
+    "connectionColor": "#77cc22",
+    "hostname": "127.0.0.1",
+    "hostPort": 3000,
+    "clientId": "lens_iDWbqZXn1SvH2JWm4XX3TvUSseT",
+    "cleanSession": false,
+    "useSSL": false,
+    "keepAlive": 120,
+    "username": "",
+    "password": "",
+    "passwordHashFunction": true,
+    "lastWillTopic": "",
+    "lastWillMessage": "",
+    "lastWillQoS": 0,
+    "lastWillRetained": true,
+    "autoConnect": true,
+    "host": {},
+    "mqttProtocol": "ws",
+    "tcpAvailable": false,
+    "narrowQuery": "max-width: 680px",
+    "narrow": false,
+    "useWebsocketConnectionInChrome": false,
+    "connectionEnabled": true,
+    "connectionColors": ["#77cc22", "#85d138", "#92d64e", "#a0db64", "#ade07a", "#bbe691", "#c9eba7", "#d6f0bd", "#e4f5d3", "#f1fae9"]
+  });
+  scope.mqttConnections.push({
+    "mode": "new",
+    "connectionID": "lens_b8HnxeFkEm9N5rDydKkedGkAIVS",
+    "connectionName": "foo",
+    "connectionColor": "#d27130",
+    "hostname": "127.0.0.1",
+    "hostPort": 3000,
+    "clientId": "lens_4c0InIvkKEhizKv5ZBa1TDq59Ic",
+    "cleanSession": false,
+    "useSSL": false,
+    "keepAlive": 120,
+    "username": "",
+    "password": "",
+    "passwordHashFunction": true,
+    "lastWillTopic": "",
+    "lastWillMessage": "",
+    "lastWillQoS": 0,
+    "lastWillRetained": true,
+    "autoConnect": true,
+    "host": {},
+    "mqttProtocol": "ws",
+    "tcpAvailable": false,
+    "narrowQuery": "max-width: 680px",
+    "narrow": false,
+    "useWebsocketConnectionInChrome": false,
+    "connectionEnabled": true,
+    "connectionColors": ["#d27130", "#d77f45", "#db8d59", "#e09c6e", "#e4aa83", "#e9b898", "#edc6ac", "#f2d4c1", "#f6e3d6", "#fbf1ea"]
+  });
+</script>
 </body>
 </html>
