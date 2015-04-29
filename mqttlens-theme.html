@@ -1,10 +1,96 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-<body>
+<link rel="import" href="../core-style/core-style.html">
 
-</body>
-</html>
+
+
+<core-style id="mqttlenstheme">
+
+  paper-toast {
+  z-index: 1001!important;
+  }
+
+  body {
+  background: #c0c0c0;
+  }
+
+
+  <template repeat="{{ connection in g.mqttlens.mqttConnections}}">
+    :host /deep/ .{{connection.connectionID}} h1 {
+      color: {{connection.connectionColors[0]}}!important;
+    }
+
+    :host /deep/ .{{connection.connectionID}}.zero.border {
+      border-left: 3px solid {{connection.connectionColors[0]}};
+      border-right: 1px solid {{connection.connectionColors[0]}};
+    }
+
+    :host /deep/ .{{connection.connectionID}}.badge {
+      background: {{connection.connectionColors[0]}};
+    }
+
+    :host /deep/ .message-{{connection.connectionID}}.row.message {
+      border-top: 2px solid {{connection.connectionColors[9]}};
+      border-left: 3px solid {{connection.connectionColors[0]}};
+      border-bottom: 2px solid {{connection.connectionColors[9]}};
+      -webkit-animation: okAnimationa 5s;
+    }
+    <template repeat="{{ index, i in g.mqttlens.colorsIndex}}">
+      :host /deep/ .{{connection.connectionID}}.{{ index }}.bg {
+        background: {{connection.connectionColors[i]}}!important;
+      }
+    </template>
+
+
+  </template>
+
+</core-style>
+
+<polymer-element name="mqttlens-connection-container" constructor="MqttlensConnectionContainer">
+  <template></template>
+  <script>
+    Polymer('mqttlens-connection-container', {
+      publish: {
+        connectionID: "",
+        connectionColor: "",
+        connectionColors: []
+      },
+
+      connectionColorChanged: function(){
+        this.connectionColors = this.generateConnectionColor(this.connectionColor)
+      },
+
+      generateConnectionColor: function (color) {
+        var colors = ['', '', '', '', '', '', '', '', '', ''];
+        for (var i = 0; i < 10; i++) {
+          colors[i] = this.shadeColor(color, 0.10 * i);
+        }
+        return colors;
+      },
+
+      /**
+       * A helper function to lighten or darken colors
+       * @param color the color without or without the datsh (#)
+       * @param percent how mutch the color should be lightend or darkend [0.00, 1.00]
+       * @returns {string} the color in hex with the dash (#)
+       */
+      shadeColor: function (color, percent) {
+        var f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
+        return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
+      },
+    });
+  </script>
+</polymer-element>
+
+<script>
+  (function() {
+
+    addEventListener('polymer-ready', function() {
+
+      CoreStyle.g.mqttlens = CoreStyle.g.mqttlens || {};
+      CoreStyle.g.mqttlens.mqttConnections = CoreStyle.g.mqttlens.mqttConnections || [];
+      var indexString = ['zero','one','two','three','four','five','six','seven','eight','nine'];
+      CoreStyle.g.mqttlens.colorsIndex = indexString;
+
+    });
+
+  })();
+</script>
