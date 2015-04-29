@@ -5,7 +5,6 @@
 <link rel="import" href="../core-input/core-input.html"/>
 <link rel="import" href="../core-localstorage/core-localstorage.html">
 
-
 <!--custom components-->
 <link rel="import" href="../mqtt-connection/mqtt-connection.html">
 <link rel="import" href="../changeover-icon/changeover-icon.html">
@@ -16,6 +15,10 @@
 
 <link rel="import" href="../paper-shadow/paper-shadow.html"/>
 <link rel="import" href="../core-drawer-panel/core-drawer-panel.html">
+<link rel="import" href="../core-list/core-list.html"/>
+
+<link rel="import" href="mqttlens-theme.html"/>
+
 
 <polymer-element name="mqtt-lens" constructo="Mqttlens">
   <!-- outermost template defines the element's shadow DOM -->
@@ -30,9 +33,36 @@
         width: 48px;
       }
 
+      .badge.zero.bg {
+        /*padding-left: 0;*/
+        /*padding-right: 0;*/
+      }
+
+      .status {
+        height: 12px;
+        width: 12px;
+      }
+
+      .badge.zero.bg {
+        display: inline-block;
+        margin-bottom: -4px;
+        margin-right: 4px;
+        height: 18px;
+        width: 18px;
+        padding: 0;
+
+      }
+
+
       .badge.zero.bg.connected {
-        background: limegreen;
-        color: limegreen;
+        background: green;
+        color: green;
+      }
+
+
+      .badge.zero.bg.connecting {
+        background: orange;
+        color: orange;
       }
 
       .badge.zero.bg.disconnected {
@@ -41,86 +71,53 @@
       }
     </style>
 
+    <core-style ref="mqttlenstheme"></core-style>
 
     <!--on-chrome-storage-load this.savedConnectionsLoaded-->
-
     <template bind if="{{ ! checkForChromeStorage() }}">
-      <core-localstorage name="mqtt_lens_connections" value="{{savedConnections}}" on-core-localstorage-load="{{savedConnectionsLoaded}}></core-localstorage>
+      <core-localstorage
+          name="mqtt_lens_connections"
+          value="{{savedConnections}}"
+          on-core-localstorage-load="{{savedConnectionsLoaded}}">
+
+      </core-localstorage>
     </template>
     <template bind if="{{ checkForChromeStorage() }}">
-      <chrome-storage name="mqtt_lens_connections" value="{{savedConnections}}" useChrome="local"></chrome-storage>
+      <chrome-storage
+          name="mqtt_lens_connections"
+          value="{{savedConnections}}"
+          useChrome="local"
+          on-chrome-storage-load="{{savedConnectionsLoaded}}">
+
+      </chrome-storage>
     </template>
 
-    <template repeat="{{ connection in mqttConnections}}">
-      <core-style id="mqttlens">
+    <core-style id="mqttlens">
+      .mqttlens.zero.border {
+      border-left: 3px solid #00FF00!important;
+      border-right: 1px solid #0000FF!important;
+      }
+    </core-style>
 
-
-
-        .mqttlens.zero.border {
-          border-left: 3px solid #00FF00!important;
-          border-right: 1px solid #0000FF!important;
-        }
-
-
-        .{{connection.connectionID}} h1  {
-          color: {{connection.connectionColors[0]}}!important;
-        }
-      </core-style>
-
-
-      <core-style id="[[connection.connectionID]]">
-
-        :host /deep/ .{{connection.connectionID}}.zero.border  {
-        border-left: 3px solid {{connection.connectionColors[0]}};
-        border-right: 1px solid {{connection.connectionColors[0]}};
-        }
-
-        :host /deep/ .{{connection.connectionID}} .badge  {
-        background: {{connection.connectionColors[0]}};
-        }
-
-
-        :host /deep/ .message-{{connection.connectionID}}.row.message  {
-        border-top: 2px solid {{connection.connectionColors[9]}};
-        border-left: 3px solid {{connection.connectionColors[0]}};
-        border-bottom: 2px solid {{connection.connectionColors[9]}};
-        -webkit-animation: okAnimationa 5s;
-        }
-
-      <template repeat="{{ index in colorsIndex}}">
-          :host /deep/ .{{connection.connectionID}}.{{index | indexToString }}.bg {
-             background: {{connection.connectionColors[index]}};
-          }
-      </template>
-
-        paper-toast {
-          z-index: 1001!important;
-        }
-        </core-style>
-
-      <core-style ref="[[connection.connectionID]]"></core-style>
-    </template>
     <link rel="stylesheet" href="../mqtt-lens-style/mqtt-lens-style.css"/>
     <link rel="stylesheet" href="mqtt-lens.css"/>
 
-    <core-drawer-panel>
-
-      <div drawer>MENU</div>
-
-      <div main>
-        <button core-drawer-toggle>toggle drawer</button>
-      </div>
-
-    </core-drawer-panel>
+    <div id="mqttConnections">
+      <!--this will hold the mqtt connections-->
+    </div>
+    <div id="newConnectionUi">
+      <!--this will hold the new mqttConnectionUI-->
+    </div>
 
     <!--header-->
     <div id="header">
       <header class="header gradient">
         <div class="header-wrapper">
-          <div class="row">
-            <div class="col-xs-8 col-sm-10">
-              <h1 class="app-name"><core-icon icon="search" class="big rot-75"></core-icon> {{appName}}<span>{{appSubname}}</span></h1>
-            </div>
+          <div>
+            <h1 class="app-name">
+              <core-icon icon="search" class="big rot-75"></core-icon>
+              {{appName}}<span>{{appSubname}}</span>
+            </h1>
           </div>
         </div>
       </header>
@@ -130,61 +127,68 @@
     <!--main-->
     <div class="container-fluid" layout horizontal wrap start>
       <!--menu-->
+      <!--<mqttlens-connections-menu mqttConnections="{{mqttConnections}}"></mqttlens-connections-menu>-->
+
+
       <core-collapse id="menuCollapse" target="{{$.menu}}" opened horizontal></core-collapse>
+
       <div id="menu" style="overflow:initial!important">
-         <div class="header right" layout horizontal self-stretch>
-           <div flex>
-             <h1>Connections</h1>
-           </div>
-           <div layout horizontal center class="menu-buttons">
+        <div class="header right" layout horizontal self-stretch>
+          <div flex>
+            <h1>Connections</h1>
+          </div>
+          <div layout horizontal center class="menu-buttons">
 
-             <core-tooltip show?="{{mqttConnections.length == 0}}">
-               <style>
-                 :host /deep/ .polymer-tooltip {
-                   z-index: 11;
-                 }
-               </style>
-               <template if="{{mqttConnections.length == 0}}">
-                 <strong tip>First add a connection</strong>
-               </template>
+            <core-tooltip show?="{{mqttConnections.length == 0}}">
 
-              <template if="{{mqttConnections.length > 0}}">
-               <strong tip>Add a connection</strong>
+              <style>
+                :host /deep/ .polymer-tooltip {
+                  z-index: 11;
+                }
+              </style>
+              <template if="{{mqttConnections.length == 0}}">
+                <strong tip>First add a connection</strong>
               </template>
 
-               <core-icon icon="add" on-click="{{addConnection}}"></core-icon>
-             </core-tooltip>
+              <template if="{{mqttConnections.length > 0}}">
+                <strong tip>Add a connection</strong>
+              </template>
 
-             <changeover-icon
-                 icon="expand-less"
-                 down="expand-more"
-                 up="expand-less"
-                 on-click="{{connectionListCollapse}}"
-                 status="false"
-                 disabled?="{{mqttConnections.length == 0}}"></changeover-icon>
-           </div>
-         </div>
-          <!--items-->
-          <div class="items">
-              <core-collapse id="connectionListCollapse" target="{{$.connectionList}}" opened></core-collapse>
-              <ul id="connectionList">
+              <core-icon icon="add" on-click="{{addConnection}}"></core-icon>
+            </core-tooltip>
 
-                <template repeat="{{ connection in mqttConnections }}">
-                  <li class="{{connection.connectionID}} five bg" layout horizontal center>
-                    <div flex>
-                      <core-tooltip label='{{connection.connected | connectedFilter}}' position="right">
-                          <span class="badge zero bg {{connection.connected | connectedFilter}}"> &#9679; </span>
-                      </core-tooltip>
-                      <span class="wraptext">{{connection.connectionName}}</span>
-                      <!--<span class="badge {{connection.connectionID}} zero bg">{{connection.connected | connectedFilter}}</span>-->
-                    </div>
-                    <core-icon icon="settings" size="14" on-click="{{connectionSettings}}"></core-icon>
-                    <core-icon icon="delete"  on-click="{{removeConnection}}"></core-icon>
-                  </li>
-                </template>
-
-              </ul>
+            <changeover-icon
+                icon="expand-less"
+                down="expand-more"
+                up="expand-less"
+                on-click="{{connectionListCollapse}}"
+                status="false"
+                disabled?="{{mqttConnections.length == 0}}"></changeover-icon>
           </div>
+        </div>
+        <!--items-->
+        <div class="items">
+          <core-collapse id="connectionListCollapse" target="{{$.connectionList}}" opened></core-collapse>
+          <ul id="connectionList">
+
+            <template repeat="{{ connection in mqttConnections }}">
+              <li class="{{connection.connectionID}} five bg" layout horizontal center>
+                <div flex>
+                  <core-tooltip label='{{connection.connectionStatus}}' position="right">
+                    <span class="badge zero bg {{connection.connectionStatus }}"></span>
+                    <!-- &nbsp;-->
+                    <!-- &#9679;-->
+                  </core-tooltip>
+                  <span class="wraptext">{{connection.connectionName}}</span>
+                  <!--<span class="badge {{connection.connectionID}} zero bg">{{connection.connected | connectedFilter}}</span>-->
+                </div>
+                <core-icon icon="settings" size="14" on-click="{{connectionSettings}}"></core-icon>
+                <core-icon icon="delete" on-click="{{removeConnection}}"></core-icon>
+              </li>
+            </template>
+
+          </ul>
+        </div>
       </div>
 
       <!--menu end-->
@@ -192,7 +196,11 @@
       <div id="content" class="min-200" flex>
         <div class="header left" layout horizontal center>
           <div class="menu-buttons left">
-            <changeover-icon icon="chevron-left" down="chevron-right" up="chevron-left" on-click="{{menuCollapse}}" status="false"></changeover-icon>
+            <changeover-icon icon="chevron-left"
+                             down="chevron-right"
+                             up="chevron-left"
+                             on-click="{{menuCollapse}}"
+                             status="false"></changeover-icon>
           </div>
           <div flex>
             <h1>&nbsp;</h1>
@@ -235,14 +243,14 @@
         appSubname: "lens",
         breadcrump: "Subscriptions",
         publishTopicQoS: 0,
-        subscriptionTopicQoS: 0
+        subscriptionTopicQoS: 0,
       },
 
       mqttConnections: [],
 
       colorsIndex: [0, 1, 2, 3, 4, 5, 6, 7, 7, 9],
 
-      defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb' , '#cc2255'],
+      defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb', '#cc2255'],
 
       colorCounter: 1,
 
@@ -257,8 +265,6 @@
 
       ready: function () {
         this.toast = this.$.toast;
-//        this.addEventListener('core-localstorage-load', this.savedConnectionsLoaded);
-        this.addEventListener('chrome-storage-load', this.savedConnectionsLoaded);
       },
 
       // functions
@@ -266,28 +272,24 @@
         this.leftMenu = !this.leftMenu;
       },
 
-      savedConnectionsLoaded: function (){
+      savedConnectionsLoaded: function () {
+
         var currentConnection;
 
         for (var i = 0; i < this.savedConnections.length; i++) {
           // TODO (sandro-k) let user decide if connection should use cleanSession == false
           // or create a new client ID, by default this should be cleanSession == false
-
           currentConnection = this.savedConnections[i];
-          currentConnection.connectionColors = ['', '', '', '', '', '', '', '', '', ''];
-          currentConnection.connectionColors = this.generateConnectionColor(currentConnection.connectionColor);
 
-
-          if (typeof currentConnection.connectionEnabled === "undefined"){
+          if(typeof currentConnection.connectionEnabled === "undefined") {
             currentConnection.connectionEnabled = true;
             this.savedConnections[i] = currentConnection;
             this.savedConnections = _.without(this.savedConnections, currentConnection);
             this.savedConnections.push(currentConnection);
           }
 
-//          console.log(currentConnection.connectionEnabled);
 
-          if (currentConnection.connectionEnabled === true){
+          if(currentConnection.connectionEnabled === true) {
             try {
               currentConnection.cleanSession = false;
               this.createConnection(this.savedConnections[i], true);
@@ -303,25 +305,23 @@
         }
       },
 
-      addConnection: function () {
-//        var self = this;
-        var values = {
-          "ID":"",
-          "connectionName":"",
-          "connectionColor":this.defaultConnectionColors[this.colorCounter],
-          "hostname":"",
-          "cleanSession":true,
-          "useSSL":false,
-          "keepAlive":120,
-          "passwordHashFunction":true,
-          "lastWillRetained":true,
-          "connectionEnabled": true,
-          "autoConnect":true};
 
-        this.colorCounter++;
-        if (this.colorCounter >= this.defaultConnectionColors.length ) {
-          this.colorCounter = 0;
-        }
+      // TODO REMOVE IF MQTTLENS-CONNECTION-MENU is extracted
+      addConnection: function () {
+        var values = {
+          "ID": "",
+          "connectionName": "",
+          "connectionColor": this.defaultConnectionColors[this.colorCounter],
+          "hostname": "",
+          "cleanSession": true,
+          "useSSL": false,
+          "keepAlive": 120,
+          "passwordHashFunction": true,
+          "lastWillRetained": true,
+          "connectionEnabled": true,
+          "connectionStatus": "disconnected",
+          "autoConnect": true
+        };
 
         // create modal
         var newConnectionUI = new MqttConnectionUi();
@@ -330,34 +330,43 @@
         newConnectionUI.load(values)
 
         // add listener for save
-        newConnectionUI.addEventListener("newMqttConnection", function(e) {
+        newConnectionUI.addEventListener("mqttlens-new-mqtt-connection", function (e) {
           this.createConnection(e.detail);
         }.bind(this));
 
-        newConnectionUI.addEventListener("cancelNewMqttConnection", function() {
-          // remove form shadowRoot not needed any more
-          // todo(sandro-k) removing the UI form dom causes the overlay to stay on the site fix this
-          // self.shadowRoot.removeChild(newConnectionUI);
-        });
-
-        this.shadowRoot.appendChild(newConnectionUI);
+        this.$.newConnectionUi.appendChild(newConnectionUI);
         newConnectionUI.toggle();
       },
 
-      createConnection: function(conValues, flag) {
-        if (arguments.length === 1){
+      createConnection: function (conValues, flag) {
+        var conContainer = new MqttlensConnectionContainer();
+        conContainer.connectionID = conValues.connectionID;
+        conContainer.connectionColor = conValues.connectionColor;
+        CoreStyle.g.mqttlens.mqttConnections.push(conContainer);
+
+//        conValues.connectionColors = this.generateConnectionColor(conValues.connectionColor);
+
+        this.colorCounter++;
+        if(this.colorCounter >= this.defaultConnectionColors.length) {
+          this.colorCounter = 0;
+        }
+
+        if(arguments.length === 1) {
           this.savedConnections.push(conValues);
         }
 
         var mqttCon = new MqttConnection();
         for (var property in mqttCon.publish) {
-          if (conValues[property]) {
+          if(conValues[property]) {
             mqttCon[property] = conValues[property];
           }
         }
 
+        mqttCon.id = mqttCon.connectionID;
+
         mqttCon.createClient();
         this.mqttConnections.push(mqttCon);
+        this.$.mqttConnections.appendChild(mqttCon);
 
         mqttCon.addEventListener("toast", function (e, detail, sender) {
           this.makeToast.apply(this, arguments);
@@ -370,10 +379,10 @@
 
       makeToast: function (e, detail, sender) {
         this.toast.text = e.detail.text;
-        if (e.detail.status) {
-          this.toaststatus  = e.detail.status;
+        if(e.detail.status) {
+          this.toaststatus = e.detail.status;
         } else {
-          this.toaststatus  = "";
+          this.toaststatus = "";
         }
         this.toast.show();
       },
@@ -382,23 +391,23 @@
         this.$.menuCollapse.toggle();
       },
 
-      addSubscription: function (inEvent, inDetail ,inSender) {
-        console.log("addSubscription");
+      addSubscription: function (inEvent, inDetail, inSender) {
         // there can only be one connection the the ID
 //        var connection = _.where(this.mqttConnections, {connectionID: inDetail.connectionID})[0];
         var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
         // subscribe
-        connection.subscribe(inDetail.topic, {"qos":inDetail.qos} , inDetail.target);
+        connection.subscribe(inDetail.topic, {"qos": inDetail.qos}, inDetail.target);
       },
 
+      // TODO REMOVE IF MQTTLENS-CONNECTION-MENU is extracted
+      connectionSettings: function (inEvent, inDetail, inSender) {
 
-      connectionSettings: function (inEvent, inDetail ,inSender) {
         var connection = inSender.templateInstance.model.connection;
 
         var values = {};
 
         for (var property in connection.publish) {
-          if (connection[property]) {
+          if(connection[property]) {
             values[property] = connection[property];
           }
         }
@@ -412,47 +421,48 @@
         newConnectionUI.mode = 'edit';
 
         // add listener for save
-        newConnectionUI.addEventListener("newMqttConnection", function(e) {
+        newConnectionUI.addEventListener("mqttlens-new-mqtt-connection", function (e) {
           connection.updateConnection(e.detail);
-        });
+
+          // update the current ui
+          var connectionToUpdate = _.where(CoreStyle.g.mqttlens.mqttConnections, {"connectionID": connection.connectionID})[0];
+          connectionToUpdate = _.extend(connectionToUpdate, e.detail);
+
+          // update the saved connections
+          var savedConnectionToUpdate = _.findWhere(this.savedConnections, {"connectionID": connection.connectionID});
+          this.savedConnections = _.without(this.savedConnections, savedConnectionToUpdate);
+          savedConnectionToUpdate = _.extend(savedConnectionToUpdate, e.detail)
+          this.savedConnections.push(savedConnectionToUpdate);
+
+        }.bind(this));
 
         this.shadowRoot.appendChild(newConnectionUI);
 
         newConnectionUI.toggle();
       },
 
-      toggleSubscribe: function (inEvent, inDetail ,inSender) {
-        // todo(sandro-k) unclean hack please fix
-        inSender.templateInstance.firstNode.parentNode.querySelector("#subscriptionCollapse"+ inSender.getAttribute("target")).toggle();
-      },
-
-      togglePublish: function (inEvent, inDetail ,inSender) {
-        // todo(sandro-k) unclean hack please fix
-        inSender.templateInstance.firstNode.parentNode.querySelector("#publishCollapse" + inSender.getAttribute("target")).toggle();
-      },
-
-      mqttPublish: function (inEvent, inDetail ,inSender) {
-        console.log("mqttPublish");
-
+      mqttPublish: function (inEvent, inDetail, inSender) {
         var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
 
-        connection.mqttPublish(inDetail.topic, inDetail.message, inDetail.options, function() {
+        connection.mqttPublish(inDetail.topic, inDetail.message, inDetail.options, function () {
           console.log("Published success")
         });
       },
 
-      getConnectionFromConnectionID: function(connectionID){
+      getConnectionFromConnectionID: function (connectionID) {
         return _.where(this.mqttConnections, {"connectionID": connectionID})[0];
       },
 
-      removeConnection: function (inEvent, inDetail ,inSender) {
+      // TODO REMOVE IF MQTTLENS-CONNECTION-MENU is extracted
+      removeConnection: function (inEvent, inDetail, inSender) {
         var connection = inSender.templateInstance.model.connection;
         connection.end();
 
         this.mqttConnections = _.without(this.mqttConnections, connection);
+
         for (var i = 0; i < this.savedConnections.length; i++) {
           var obj = this.savedConnections[i];
-          if (obj.connectionID === connection.connectionID){
+          if(obj.connectionID === connection.connectionID) {
             this.savedConnections = _.without(this.savedConnections, obj);
             break;
           }
@@ -460,73 +470,26 @@
         }
       },
 
-      /**
-       * FILTER EXPRESSIONS
-       */
-      connectedFilter: function(connected){
-        if(connected) {
-          return "connected";
-        } else {
-          return "disconnected";
-        }
-      },
-
-      debug: function(param){
-        console.log (param);
-//        if (typeof param === 'undefined'){
-//          return "";
-//        }
+      debug: function (param) {
+        console.log(param);
         return param;
       },
 
-      log: function(param){
-        console.log (param);
+      log: function (param) {
+        console.log(param);
       },
 
       checkForChromeStorage: function () {
-        if (chrome.storage){
+        if(chrome.storage) {
           return true;
         } else {
           return false;
         }
       },
 
-      /**
-       * A helper function to lighten or darken colors
-       * @param color the color without or without the datsh (#)
-       * @param percent how mutch the color should be lightend or darkend [0.00, 1.00]
-       * @returns {string} the color in hex with the dash (#)
-       */
-      shadeColor: function (color, percent) {
-        var f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
-        return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
-      },
-
-      indexToString: function(index){
-        switch(index){
-          case 0: return 'zero';
-          case 1: return 'one';
-          case 2: return 'two';
-          case 3: return 'three';
-          case 4: return 'four';
-          case 5: return 'five';
-          case 6: return 'six';
-          case 7: return 'seven';
-          case 8: return 'eight';
-          case 9: return 'nine';
-
-          default: return 'none';
-        }
-      },
-
-      generateConnectionColor: function (color) {
-        var colors = ['', '', '', '', '', '', '', '', '', ''];
-        for (var i = 0; i < 10; i++) {
-          colors[i] = this.shadeColor(color, 0.10 * i);
-        }
-        return colors;
-        }
 
     });
   </script>
+
+
 </polymer-element>
