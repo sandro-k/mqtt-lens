@@ -7,9 +7,9 @@
 <link rel="import" href="../paper-input/paper-input-decorator.html">
 <link rel="import" href="../paper-input/paper-autogrow-textarea.html">
 <link rel="import" href="../core-style/core-style.html">
-
-
+<link rel="import" href="mqttlens-theme.html">
 <link rel="import" href="mqttlens-qos-dropdown.html">
+
 
 <core-style id="message-dashboard-style">
   <style>
@@ -17,9 +17,8 @@
       margin-top: 1em;
     }
 
-    paper-button {
-      margin-top: 4px;
-      height: 40px;
+    paper-button /deep/ .button-content {
+      padding: 0.9em 0.57em;
     }
 
     paper-button.colored {
@@ -57,6 +56,8 @@
       margin-top: .2em;
       margin-bottom: .2em;
       background: #FFFFFF;
+      padding-left: 4px;
+      padding-right: 4px;
     }
 
     .min-200 {
@@ -68,9 +69,8 @@
 
 <polymer-element name="mqtt-message-dashboard">
   <template>
-    <core-style ref="[[connectionID]]"></core-style>
+    <core-style ref="mqttlenstheme"></core-style>
     <core-style ref="mqttlens"></core-style>
-
     <core-style ref="message-dashboard-style"></core-style>
 
     <core-media-query query="max-width: 600px" queryMatches="{{narrow}}"></core-media-query>
@@ -146,7 +146,7 @@
           <div class="mr">
             <mqttlens-qos-dropdown flex selectedItem="{{publishTopicQoS}}"></mqttlens-qos-dropdown>
 
-            <paper-checkbox label="Retained"></paper-checkbox>
+            <paper-checkbox checked="{{publishRetained}}" label="Retained"></paper-checkbox>
 
             <paper-button raised class="colored" on-click="{{mqttPublish}}">Publish</paper-button>
           </div>
@@ -177,17 +177,15 @@
   <script>
     Polymer('mqtt-message-dashboard', {
       publish: {
-
         connectionName: "",
         connectionID: "",
-        subscriptionTopic: "",
+        subscriptionTopic: "test",
         subscriptionTopicQoS: 0,
-        publishTopic: "",
+        publishTopic: "test",
         publishTopicQoS: 0,
-        publishValue: ""
-
+        publishValue: "",
+        publishRetained: false
       },
-
 
 
       toggleSubscribe: function (inEvent, inDetail, inSender) {
@@ -204,7 +202,7 @@
 
       addSubscription: function (inEvent, inDetail, inSender) {
         console.log("addSubscription");
-//        // polymer magic
+        // polymer magic
         var connectionID = inSender.templateInstance.model.connectionID;
 
         var message = {
@@ -214,11 +212,11 @@
           target: this.$.connectionID
         };
 
-        console.log(message);
 
         this.asyncFire("mqtt-new-subscription", message);
 
       },
+
 
       mqttPublish: function (inEvent, inDetail, inSender) {
 
@@ -229,7 +227,7 @@
           "topic": this.publishTopic,
           "options": {
             "qos": parseInt(this.publishTopicQoS),
-            "retain": false
+            "retain": this.publishRetained
           },
           "message": this.publishValue
         };
@@ -239,6 +237,11 @@
       log: function(param){
         console.log (param);
       },
+
+      debug: function (param) {
+        console.log(param);
+        return param;
+      }
 
 
     });
