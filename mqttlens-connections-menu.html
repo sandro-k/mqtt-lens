@@ -1,0 +1,182 @@
+<link rel="import" href="../polymer/polymer.html"/>
+<link rel="import" href="../core-collapse/core-collapse.html"/>
+<link rel="import" href="../core-tooltip/core-tooltip.html"/>
+<link rel="import" href="../changeover-icon/changeover-icon.html"/>
+<link rel="import" href="../core-icon/core-icon.html"/>
+<link rel="import" href="../mqtt-connection-ui/mqtt-connection-ui.html">
+<!--<link rel="import" href="../"/>-->
+
+
+<polymer-element name="mqttlens-connections-menu">
+  <template>
+    <mqtt-connection-ui></mqtt-connection-ui>
+
+    <!--menu-->
+    <core-collapse id="menuCollapse" target="{{$.menu}}" opened horizontal></core-collapse>
+
+    <div id="menu" style="overflow:initial!important">
+      <div class="header right" layout horizontal self-stretch>
+        <div flex>
+          <h1>Connections</h1>
+        </div>
+        <div layout horizontal center class="menu-buttons">
+
+          <core-tooltip show?="{{mqttConnections.length == 0}}">
+
+            <style>
+              :host /deep/ .polymer-tooltip {
+                z-index: 11;
+              }
+            </style>
+            <template if="{{mqttConnections.length == 0}}">
+              <strong tip>First add a connection</strong>
+            </template>
+
+            <template if="{{mqttConnections.length > 0}}">
+              <strong tip>Add a connection</strong>
+            </template>
+
+            <core-icon icon="add" on-click="{{addConnection}}"></core-icon>
+          </core-tooltip>
+
+          <changeover-icon
+              icon="expand-less"
+              down="expand-more"
+              up="expand-less"
+              on-click="{{connectionListCollapse}}"
+              status="false"
+              disabled?="{{mqttConnections.length == 0}}"></changeover-icon>
+        </div>
+      </div>
+      <!--items-->
+      <div class="items">
+        <core-collapse id="connectionListCollapse" target="{{$.connectionList}}" opened></core-collapse>
+        <ul id="connectionList">
+
+          <template repeat="{{ connection in mqttConnections }}">
+            <li class="{{connection.connectionID}} five bg" layout horizontal center>
+              <div flex>
+
+                <core-tooltip label='{{connection.connected | connectedFilter}}' position="right">
+                  <span class="badge zero bg {{connection.connected | connectedFilter}}">&#9679;</span>
+                </core-tooltip>
+
+                <span class="wraptext">{{connection.connectionName}}</span>
+
+              </div>
+              <core-icon icon="settings" size="14" on-click="{{connectionSettings}}"></core-icon>
+              <core-icon icon="delete"  on-click="{{removeConnection}}"></core-icon>
+            </li>
+          </template>
+
+        </ul>
+      </div>
+    </div>
+
+    <!--menu end-->
+  </template>
+  <script>
+    Polymer('mqttlens-connections-menu', {
+
+      publish: {
+        mqttConnections: [],
+        defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb' , '#cc2255'],
+      },
+
+      addConnection: function () {
+//        var self = this;
+        var values = {
+//          "ID":"",
+//          "connectionName":"",
+          "connectionColor":this.defaultConnectionColors[this.colorCounter],
+//          "hostname":"",
+//          "cleanSession":true,
+//          "useSSL":false,
+//          "keepAlive":120,
+//          "passwordHashFunction":true,
+//          "lastWillRetained":true,
+          "connectionEnabled": true,
+          "autoConnect":true};
+
+        this.colorCounter++;
+        if (this.colorCounter >= this.defaultConnectionColors.length ) {
+          this.colorCounter = 0;
+        }
+
+        // create modal
+        var newConnectionUI = new MqttConnectionUi();
+
+        // load values
+        newConnectionUI.load(values)
+
+        // add listener for save
+        newConnectionUI.addEventListener("mqttlens-new-mqtt-connection", function(e) {
+          this.createConnection(e.detail);
+        }.bind(this));
+
+        newConnectionUI.addEventListener("cancelNewMqttConnection", function() {
+          // remove form shadowRoot not needed any more
+          // todo(sandro-k) removing the UI form dom causes the overlay to stay on the site fix this
+          // self.shadowRoot.removeChild(newConnectionUI);
+        });
+
+        this.shadowRoot.appendChild(newConnectionUI);
+        newConnectionUI.toggle();
+      },
+
+      connectedFilter: function(connected){
+        if(connected) {
+          return "connected";
+        } else {
+          return "disconnected";
+        }
+      },
+
+      connectionSettings: function (inEvent, inDetail ,inSender) {
+        var connection = inSender.templateInstance.model.connection;
+
+        var values = {};
+
+        for (var property in connection.publish) {
+          if (connection[property]) {
+            values[property] = connection[property];
+          }
+        }
+
+        // create modal
+        var newConnectionUI = new MqttConnectionUi();
+
+        // load values
+        newConnectionUI.load(values)
+
+        newConnectionUI.mode = 'edit';
+
+        // add listener for save
+        newConnectionUI.addEventListener("mqttlens-new-mqtt-connection", function(e) {
+          connection.updateConnection(e.detail);
+        });
+
+        this.shadowRoot.appendChild(newConnectionUI);
+
+        newConnectionUI.toggle();
+      },
+
+      removeConnection: function (inEvent, inDetail ,inSender) {
+        var connection = inSender.templateInstance.model.connection;
+        connection.end();
+
+        this.mqttConnections = _.without(this.mqttConnections, connection);
+        for (var i = 0; i < this.savedConnections.length; i++) {
+          var obj = this.savedConnections[i];
+          if (obj.connectionID === connection.connectionID){
+            this.savedConnections = _.without(this.savedConnections, obj);
+            break;
+          }
+
+        }
+      }
+
+    });
+  </script>
+
+</polymer-element>
