@@ -67,6 +67,7 @@
         background: red;
         color: red;
       }
+      
     </style>
 
     <core-style ref="mqttlenstheme"></core-style>
@@ -177,7 +178,7 @@
 
             <template repeat="{{ connection in mqttConnections }}">
               <li class="{{connection.connectionID}} five bg" layout horizontal center>
-                <div flex>
+                <div flex style="overflow: hidden">
                   <core-tooltip label='{{connection.connectionStatus}}' position="right">
                     <span class="badge zero bg {{connection.connectionStatus }}"></span>
                     <!-- &nbsp;-->
