@@ -53,12 +53,10 @@
 
       }
 
-
       .badge.zero.bg.connected {
         background: green;
         color: green;
       }
-
 
       .badge.zero.bg.connecting {
         background: orange;
@@ -114,10 +112,16 @@
       <header class="header gradient">
         <div class="header-wrapper">
           <div>
-            <h1 class="app-name">
+            <h1 class="app-name" style="   display: flex;center;align-items: center;">
               <core-icon icon="search" class="big rot-75"></core-icon>
-              {{appName}}<span>{{appSubname}}</span>
+              <span style="flex: 1">{{appName}}<span>{{appSubname}}</span></span>
+              <template if="{{manifest}}">
+                <span style="font-size: 0.6em; margin-right: 0.5em"><a target="_blank" href="https://github.com/sandro-k/MQTTLensChromeApp">Version [[manifest.version]]</a></span>
+              </template>
             </h1>
+
+
+
           </div>
         </div>
       </header>
@@ -238,12 +242,17 @@
     Polymer('mqtt-lens', {
 
       publish: {
+        manifest: undefined,
         leftMenu: true,
         appName: "MQTT",
         appSubname: "lens",
         breadcrump: "Subscriptions",
         publishTopicQoS: 0,
         subscriptionTopicQoS: 0,
+      },
+
+      listeners: {
+        toast: '_toastHandler'
       },
 
       mqttConnections: [],
@@ -255,6 +264,9 @@
       colorCounter: 1,
 
       created: function () {
+        if(chrome && chrome.runtime && chrome.runtime.getManifest) {
+          this.manifest = chrome.runtime.getManifest()
+        }
         this.subscriptionTopic = '';
         this.publishTopicQoS = 0;
         this.publishTopic = '';
@@ -305,7 +317,6 @@
         }
       },
 
-
       // TODO REMOVE IF MQTTLENS-CONNECTION-MENU is extracted
       addConnection: function () {
         var values = {
@@ -343,8 +354,6 @@
         conContainer.connectionID = conValues.connectionID;
         conContainer.connectionColor = conValues.connectionColor;
         CoreStyle.g.mqttlens.mqttConnections.push(conContainer);
-
-//        conValues.connectionColors = this.generateConnectionColor(conValues.connectionColor);
 
         this.colorCounter++;
         if(this.colorCounter >= this.defaultConnectionColors.length) {
@@ -466,7 +475,6 @@
             this.savedConnections = _.without(this.savedConnections, obj);
             break;
           }
-
         }
       },
 
@@ -487,6 +495,9 @@
         }
       },
 
+      _toastHandler: function () {
+        console.log("_toastHandler", arguments);
+      }
 
     });
   </script>

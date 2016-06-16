@@ -179,29 +179,25 @@
       publish: {
         connectionName: "",
         connectionID: "",
-        subscriptionTopic: "test",
+        subscriptionTopic: "",
         subscriptionTopicQoS: 0,
-        publishTopic: "test",
+        publishTopic: "",
         publishTopicQoS: 0,
         publishValue: "",
         publishRetained: false
       },
 
-
       toggleSubscribe: function (inEvent, inDetail, inSender) {
         // todo(sandro-k) unclean hack please fix
-        console.log("toggleSubscribe");
         inSender.templateInstance.firstNode.parentNode.querySelector("#subscriptionCollapse" + inSender.getAttribute("target")).toggle();
       },
 
       togglePublish: function (inEvent, inDetail, inSender) {
         // todo(sandro-k) unclean hack please fix
-        console.log("togglePublish");
         inSender.templateInstance.firstNode.parentNode.querySelector("#publishCollapse" + inSender.getAttribute("target")).toggle();
       },
 
       addSubscription: function (inEvent, inDetail, inSender) {
-        console.log("addSubscription");
         // polymer magic
         var connectionID = inSender.templateInstance.model.connectionID;
 
@@ -242,7 +238,6 @@
         console.log(param);
         return param;
       }
-
 
     });
   </script>
