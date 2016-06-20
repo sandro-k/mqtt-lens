@@ -184,7 +184,31 @@
         publishTopic: "",
         publishTopicQoS: 0,
         publishValue: "",
-        publishRetained: false
+        publishRetained: false,
+        savedSubscriptions: []
+      },
+
+      ready: function () {
+        console.log("ready", arguments);
+
+//        var message = {
+//          "connectionID": this.connectionID,
+//          "topic": "foo",
+//          "qos": 1,
+//          target: this.$.connectionID
+//        };
+
+
+//        this.asyncFire("mqtt-new-subscription", message);
+
+      },
+
+      savedSubscriptionsChanged: function(oldSavedSubscriptions, newSavedSubscriptions){
+
+
+
+//        var message = {connectionID: this.connectionID, topic: newSavedSubscriptions[0], qos: 1, target: this.$.connectionID};
+//        this.asyncFire("mqtt-new-subscription", message)
       },
 
       toggleSubscribe: function (inEvent, inDetail, inSender) {
@@ -216,7 +240,6 @@
 
       mqttPublish: function (inEvent, inDetail, inSender) {
 
-        console.log("mqttPublish");
         var connectionID = inSender.templateInstance.model.connectionID;
         var message = {
           "connectionID": connectionID,

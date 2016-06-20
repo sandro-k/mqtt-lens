@@ -67,7 +67,7 @@
         background: red;
         color: red;
       }
-      
+
     </style>
 
     <core-style ref="mqttlenstheme"></core-style>
@@ -117,10 +117,12 @@
               <core-icon icon="search" class="big rot-75"></core-icon>
               <span style="flex: 1">{{appName}}<span>{{appSubname}}</span></span>
               <template if="{{manifest}}">
-                <span style="font-size: 0.6em; margin-right: 0.5em"><a target="_blank" href="https://github.com/sandro-k/MQTTLensChromeApp">Version [[manifest.version]]</a></span>
+                <span style="font-size: 0.6em; margin-right: 0.5em"><a target="_blank"
+                                                                       href="https://github.com/sandro-k/MQTTLensChromeApp">
+                  Version [[manifest.version]]
+                </a></span>
               </template>
             </h1>
-
 
 
           </div>
@@ -220,7 +222,8 @@
                 on-mqtt-new-subscription="{{addSubscription}}"
                 on-mqtt-new-publish="{{mqttPublish}}"
                 connectionID="{{connection.connectionID}}"
-                connectionName="{{connection.connectionName}}">
+                connectionName="{{connection.connectionName}}"
+                savedSubscriptions="{{connection.savedSubscriptions}}">
             </mqtt-message-dashboard>
 
           </template>
@@ -249,11 +252,12 @@
         appSubname: "lens",
         breadcrump: "Subscriptions",
         publishTopicQoS: 0,
-        subscriptionTopicQoS: 0,
+        subscriptionTopicQoS: 0
       },
 
       listeners: {
-        toast: '_toastHandler'
+        'toast': '_toastHandler',
+        'unsubscribe': "_unsubscribeHandler"
       },
 
       mqttConnections: [],
@@ -263,6 +267,7 @@
       defaultConnectionColors: ['#ccbb22', '#77cc22', '#22cc33', '#22cc99', '#2233cc', '#7722cc', '#cc22bb', '#cc2255'],
 
       colorCounter: 1,
+
 
       created: function () {
         if(chrome && chrome.runtime && chrome.runtime.getManifest) {
@@ -306,6 +311,8 @@
             try {
               currentConnection.cleanSession = false;
               this.createConnection(this.savedConnections[i], true);
+
+
             } catch (e) {
               console.log(e);
               currentConnection.connectionEnabled = false;
@@ -378,6 +385,12 @@
         this.mqttConnections.push(mqttCon);
         this.$.mqttConnections.appendChild(mqttCon);
 
+
+        mqttCon.addEventListener("unsubscribe", function (e, detail, sender) {
+          var savedCon = _.find(this.savedConnections, {connectionID: event.detail.connectionID});
+          savedCon.savedSubscriptions = _.without(savedCon.savedSubscriptions, _.find(savedCon.savedSubscriptions,{topic: e.detail.topic}));
+        }.bind(this));
+
         mqttCon.addEventListener("toast", function (e, detail, sender) {
           this.makeToast.apply(this, arguments);
         }.bind(this));
@@ -404,9 +417,29 @@
       addSubscription: function (inEvent, inDetail, inSender) {
         // there can only be one connection the the ID
 //        var connection = _.where(this.mqttConnections, {connectionID: inDetail.connectionID})[0];
-        var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
+//        var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
         // subscribe
+//        connection.subscribe(inDetail.topic, {"qos": inDetail.qos}, inDetail.target);
+
+        this._addSubscription(inDetail);
+      },
+
+
+      _addSubscription: function (inDetail) {
+        var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
+
         connection.subscribe(inDetail.topic, {"qos": inDetail.qos}, inDetail.target);
+
+        var savedConnection = _.find(this.savedConnections, {connectionID: inDetail.connectionID});
+        if(savedConnection) {
+          if(savedConnection.savedSubscriptions) {
+            if (!_.find(savedConnection.savedSubscriptions, {topic: inDetail.topic})){
+              savedConnection.savedSubscriptions.push({topic: inDetail.topic, qos: inDetail.qos});
+            }
+          } else {
+            savedConnection.savedSubscriptions = [{topic: inDetail.topic, qos: inDetail.qos}]
+          }
+        }
       },
 
       // TODO REMOVE IF MQTTLENS-CONNECTION-MENU is extracted
@@ -426,7 +459,7 @@
         var newConnectionUI = new MqttConnectionUi();
 
         // load values
-        newConnectionUI.load(values)
+        newConnectionUI.load(values);
 
         newConnectionUI.mode = 'edit';
 
@@ -441,7 +474,7 @@
           // update the saved connections
           var savedConnectionToUpdate = _.findWhere(this.savedConnections, {"connectionID": connection.connectionID});
           this.savedConnections = _.without(this.savedConnections, savedConnectionToUpdate);
-          savedConnectionToUpdate = _.extend(savedConnectionToUpdate, e.detail)
+          savedConnectionToUpdate = _.extend(savedConnectionToUpdate, e.detail);
           this.savedConnections.push(savedConnectionToUpdate);
 
         }.bind(this));
@@ -455,7 +488,7 @@
         var connection = this.getConnectionFromConnectionID(inDetail.connectionID);
 
         connection.mqttPublish(inDetail.topic, inDetail.message, inDetail.options, function () {
-          console.log("Published success")
+
         });
       },
 
@@ -489,16 +522,12 @@
       },
 
       checkForChromeStorage: function () {
-        if(chrome.storage) {
-          return true;
-        } else {
-          return false;
-        }
+        return !!chrome.storage;
       },
 
-      _toastHandler: function () {
-        console.log("_toastHandler", arguments);
-      }
+      _toastHandler: function () {},
+
+      _unsubscribeHandler: function(){}
 
     });
   </script>
