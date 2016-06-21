@@ -83,6 +83,7 @@
     </template>
     <template bind if="{{ checkForChromeStorage() }}">
       <chrome-storage
+          id="chromeStore"
           name="mqtt_lens_connections"
           value="{{savedConnections}}"
           useChrome="local"
@@ -291,7 +292,6 @@
       },
 
       savedConnectionsLoaded: function () {
-
         var currentConnection;
 
         for (var i = 0; i < this.savedConnections.length; i++) {
@@ -317,7 +317,7 @@
               console.log(e);
               currentConnection.connectionEnabled = false;
               this.savedConnections[i] = currentConnection;
-              // remove connection that made cause the error
+              // remove connection that caused the error
               this.savedConnections = _.without(this.savedConnections, currentConnection);
               this.savedConnections.push(currentConnection);
             }
@@ -389,6 +389,10 @@
         mqttCon.addEventListener("unsubscribe", function (e, detail, sender) {
           var savedCon = _.find(this.savedConnections, {connectionID: event.detail.connectionID});
           savedCon.savedSubscriptions = _.without(savedCon.savedSubscriptions, _.find(savedCon.savedSubscriptions,{topic: e.detail.topic}));
+          if (this.$.chromeStore && this.$.chromeStore.save){
+            this.$.chromeStore.save();
+          }
+
         }.bind(this));
 
         mqttCon.addEventListener("toast", function (e, detail, sender) {
@@ -438,6 +442,10 @@
             }
           } else {
             savedConnection.savedSubscriptions = [{topic: inDetail.topic, qos: inDetail.qos}]
+          }
+
+          if (this.$.chromeStore && this.$.chromeStore.save){
+            this.$.chromeStore.save();
           }
         }
       },

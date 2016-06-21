@@ -41,7 +41,6 @@
       height: 40px;
     }
 
-
     h2, h3 {
       margin-top: 0.2em
       margin-bottom: 0.2em;
@@ -188,27 +187,31 @@
         savedSubscriptions: []
       },
 
-      ready: function () {
-        console.log("ready", arguments);
+      ready: function () {},
 
-//        var message = {
-//          "connectionID": this.connectionID,
-//          "topic": "foo",
-//          "qos": 1,
-//          target: this.$.connectionID
-//        };
+      savedSubscriptionsChanged: function (oldSavedSubscriptions, newSavedSubscriptions) {
+        if(oldSavedSubscriptions &&
+            oldSavedSubscriptions.length === 0 &&
+            newSavedSubscriptions &&
+            newSavedSubscriptions.length> 0) {
+
+          var message;
+          for (var i = 0; i < newSavedSubscriptions.length; i++){
+
+            message = {
+              connectionID: this.connectionID,
+              topic: newSavedSubscriptions[i].topic,
+              qos: newSavedSubscriptions[i].qos,
+              target: this.$.connectionID
+            };
+
+            this.asyncFire("mqtt-new-subscription", message)
+          }
 
 
-//        this.asyncFire("mqtt-new-subscription", message);
-
-      },
-
-      savedSubscriptionsChanged: function(oldSavedSubscriptions, newSavedSubscriptions){
+        }
 
 
-
-//        var message = {connectionID: this.connectionID, topic: newSavedSubscriptions[0], qos: 1, target: this.$.connectionID};
-//        this.asyncFire("mqtt-new-subscription", message)
       },
 
       toggleSubscribe: function (inEvent, inDetail, inSender) {
@@ -253,8 +256,8 @@
         this.asyncFire("mqtt-new-publish", message);
       },
 
-      log: function(param){
-        console.log (param);
+      log: function (param) {
+        console.log(param);
       },
 
       debug: function (param) {
