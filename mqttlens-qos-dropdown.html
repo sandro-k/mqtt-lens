@@ -19,15 +19,23 @@
       }
 
     </style>
-    <paper-dropdown-menu label="QoS" style="background: #ffffff">
-      <paper-dropdown class="dropdown">
-        <core-menu class="menu" on-core-select="{{selectAction}}" id="selector" valueattr="value" selected="{{selectedItem}}">
-          <template repeat="{{item in items}}">
-            <paper-item value="[[item.value]]">[[item.text]]</paper-item>
-          </template>
-        </core-menu>
-      </paper-dropdown>
-    </paper-dropdown-menu>
+    <!--<paper-dropdown-menu label="QoS" style="background: #ffffff">-->
+    <!--<paper-dropdown class="dropdown">-->
+    <!--<core-menu class="menu" on-core-select="{{selectAction}}" id="selector" valueattr="value" selected="{{selectedItem}}">-->
+    <!--<template repeat="{{item in items}}">-->
+    <!--<paper-item value="[[item.value]]">[[item.text]]</paper-item>-->
+    <!--</template>-->
+    <!--</core-menu>-->
+    <!--</paper-dropdown>-->
+    <!--</paper-dropdown-menu>-->
+
+
+    <select on-change="{{_selectedChanged}}">
+      <template repeat="{{item in items}}">
+        <option value="[[item.value]]">[[item.text]]</option>
+      </template>
+    </select>
+
   </template>
   <script>
     Polymer("mqttlens-qos-dropdown", {
@@ -38,6 +46,11 @@
           {value: 2, text: "2 - exactly once"}
         ],
         selectedItem: 0
+      },
+
+      _selectedChanged: function(event, target, source){
+//        console.log("_selectedChanged", arguments);
+        this.selectedItem = source.value;
       }
     });
   </script>
