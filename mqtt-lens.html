@@ -68,6 +68,23 @@
         color: red;
       }
 
+      core-icon.connected {
+        fill: green;
+        color: green;
+      }
+
+      core-icon.connecting {
+        fill: orange;
+        color: orange;
+      }
+
+      core-icon.disconnected {
+        fill: red;
+        color: red;
+      }
+
+
+
     </style>
 
     <core-style ref="mqttlenstheme"></core-style>
@@ -124,8 +141,6 @@
                 </a></span>
               </template>
             </h1>
-
-
           </div>
         </div>
       </header>
@@ -183,12 +198,9 @@
               <li class="{{connection.connectionID}} five bg" layout horizontal center>
                 <div flex style="overflow: hidden">
                   <core-tooltip label='{{connection.connectionStatus}}' position="right">
-                    <span class="badge zero bg {{connection.connectionStatus }}"></span>
-                    <!-- &nbsp;-->
-                    <!-- &#9679;-->
+                    <core-icon class="{{connection.connectionStatus}}" icon="{{connectionStatusToIcon(connection.connectionStatus)}}" size="14" on-click="{{startOrStopConnection}}"></core-icon>
                   </core-tooltip>
                   <span class="wraptext">{{connection.connectionName}}</span>
-                  <!--<span class="badge {{connection.connectionID}} zero bg">{{connection.connected | connectedFilter}}</span>-->
                 </div>
                 <core-icon icon="settings" size="14" on-click="{{connectionSettings}}"></core-icon>
                 <core-icon icon="delete" on-click="{{removeConnection}}"></core-icon>
@@ -380,8 +392,10 @@
         }
 
         mqttCon.id = mqttCon.connectionID;
+        if (mqttCon.autoConnect){
+          mqttCon.createClient();
+        }
 
-        mqttCon.createClient();
         this.mqttConnections.push(mqttCon);
         this.$.mqttConnections.appendChild(mqttCon);
 
@@ -535,7 +549,27 @@
 
       _toastHandler: function () {},
 
-      _unsubscribeHandler: function(){}
+      _unsubscribeHandler: function(){},
+
+      connectionStatusToIcon: function(connectionStatus){
+        switch (connectionStatus){
+          case "disconnected": return "av:play-circle-fill";
+          case "connected": return "av:pause-circle-fill";
+          default: break;
+        }
+
+      },
+
+      startOrStopConnection: function(inEvent, inDetail, inSender){
+        //noinspection JSUnresolvedVariable
+        var connection = inSender.templateInstance.model.connection;
+        //noinspection JSUnresolvedVariable
+        if (connection.connected){
+          connection.disconnect();
+        } else {
+          connection.reconnectClient();
+        }
+      }
 
     });
   </script>
